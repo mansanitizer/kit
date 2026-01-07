@@ -1,0 +1,146 @@
+-- Insert tools into the tools table
+-- Handles conflicts by doing nothing (assumes IDs are unique and fixed)
+
+INSERT INTO tools (id, slug, name, description, icon, system_prompt, input_schema, output_schema, schema_version, created_at, color)
+VALUES
+(
+    '11111111-1111-4111-8111-111111111111',
+    'gift-scout',
+    'Gift Scout',
+    'AI personal shopper that sees their vibe.',
+    'Gift',
+    $$You are an expert personal shopper with visual analysis skills. Analyze the provided images (for style, brand, demographics) and text constraints. Suggest 3 highly specific, non-generic gifts. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[gift_ideas]] [[vibe_analysis]]'. ($$,
+    $${"type": "object", "required": ["recipient_desc"], "properties": {"recipient_desc": {"type": "string", "description": "Who is this for?"}, "budget": {"type": "string", "description": "Price range"}, "images": {"type": "array", "items": {"type": "string", "format": "data-url"}, "description": "Upload photos of them/their stuff"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "vibe_analysis": {"type": "string", "description": "What I detected from the photos"}, "gift_ideas": {"type": "array", "items": {"type": "object", "properties": {"item": {"type": "string"}, "price_est": {"type": "string"}, "reason": {"type": "string"}}}}}}$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-pink-500 to-rose-500'
+),
+(
+    '22222222-2222-4222-8222-222222222222',
+    'stain-savior',
+    'Stain Savior',
+    'Identify stains and get chemical cleanup advise.',
+    'Droplet',
+    $$You are a dry-cleaning chemist. Visual analysis of stain/fabric. precise chemical advice. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[stain_type, fabric_risk]] [[steps]] [[warnings]]'. ($$,
+    $${"type": "object", "required": ["description"], "properties": {"description": {"type": "string", "description": "What happened?"}, "image": {"type": "string", "format": "data-url", "description": "Photo of the disaster"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "stain_type": {"type": "string"}, "fabric_risk": {"type": "string", "description": "Low | High"}, "steps": {"type": "array", "items": {"type": "string"}}, "warnings": {"type": "array", "items": {"type": "string"}}}}$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-blue-600 to-cyan-600'
+),
+(
+    '33333333-3333-4333-8333-333333333333',
+    'pet-comic',
+    'Pet Comic',
+    'Turn your pet''s photo into a cartoon scenario.',
+    'Smile',
+    $$You are a comedian and artist. 1. Analyze pet expression. 2. Write funny caption. 3. Generate a stable-diffusion prompt for a comic strip version. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[caption]] [[comic_prompt]]'. ($$,
+    $${"type": "object", "required": ["image"], "properties": {"image": {"type": "string", "format": "data-url", "description": "Photo of your pet"}, "pet_name": {"type": "string"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "caption": {"type": "string", "description": "Funny internal monologue"}, "comic_prompt": {"type": "string", "description": "Prompt for image generator"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-orange-500 to-yellow-500'
+),
+(
+    '44444444-4444-4444-8444-444444444444',
+    'argument-ammo',
+    'Argument Ammo',
+    'Upload chat screenshots to win the debate.',
+    'Zap',
+    $$You are a master debater. READ the text from the image (OCR). Detect fallacies. Provide logical and witty counters. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[analysis]] [[logical_reply]] [[witty_reply]]'. ($$,
+    $${"type": "object", "required": ["context"], "properties": {"context": {"type": "string", "description": "What is the argument about?"}, "evidence": {"type": "string", "format": "data-url", "description": "Screenshot of text/chat"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "analysis": {"type": "string", "description": "Detected dynamics/fallacies"}, "logical_reply": {"type": "string"}, "witty_reply": {"type": "string"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-red-600 to-red-800'
+),
+(
+    '55555555-5555-4555-8555-555555555555',
+    'universal-translator',
+    'Universal Translator',
+    'Translate menus, signs, and slang with context.',
+    'Languages',
+    $$Translate input (OCR or Text). Provide cultural context notes. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[translation]] [[cultural_note]]'. ($$,
+    $${"type": "object", "required": ["target_lang"], "properties": {"text_input": {"type": "string", "description": "Text to translate"}, "image_input": {"type": "string", "format": "data-url", "description": "Or upload image"}, "target_lang": {"type": "string", "default": "English"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "translation": {"type": "string"}, "cultural_note": {"type": "string", "description": "Subtext or cultural context"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-purple-600 to-indigo-600'
+),
+(
+    '66666666-6666-4666-8666-666666666666',
+    'tomato-rater',
+    'Tomato Rater',
+    'Judge a tomato''s quality for salad vs sauce.',
+    'Camera',
+    $$You are an agricultural quality expert. Analyze the tomato image for color (ripeness), skin texture (freshness), and visible defects. Provide a score and culinary recommendation. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[score, ripeness]] [[defects]] [[recommendation]]'. ($$,
+    $${"type": "object", "required": ["image"], "properties": {"image": {"type": "string", "format": "data-url", "description": "Photo of the tomato"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "score": {"type": "integer", "unit": "/10"}, "ripeness": {"type": "string", "description": "Green | Breaking | Turning | Red"}, "defects": {"type": "array", "items": {"type": "string"}, "description": "Bruises, splits, rot"}, "recommendation": {"type": "string", "description": "Salad, Sauce, or Compost"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-red-500 to-green-500'
+),
+(
+    '77777777-7777-4777-8777-777777777777',
+    'statement-analyzer',
+    'Spend Analyzer',
+    'Find leaks in your bank statement.',
+    'FileText',
+    $$You are a financial auditor. OCR the bank statement image. Categorize expenses. Identify top spending categories and recurring subscriptions. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[total_spend]] [[categories]] [[subscriptions]]'. ($$,
+    $${"type": "object", "required": ["image"], "properties": {"image": {"type": "string", "format": "data-url", "description": "Photo of bank statement"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "total_spend": {"type": "string", "description": "Total visible amount"}, "categories": {"type": "object", "description": "Key-value of Category: Amount"}, "subscriptions": {"type": "array", "items": {"type": "string"}, "description": "Detected recurring charges"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-emerald-600 to-green-600'
+),
+(
+    '88888888-8888-4888-8888-888888888888',
+    'date-questions',
+    'Date Deep Dive',
+    'Banish awkward silences forever.',
+    'MessageCircle',
+    $$You are a relationship counselor. Generate engaging questions based on the 'vibe' and relationship stage. Avoid clichés. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[ice_breakers]] [[deep_questions]]'. ($$,
+    $${"type": "object", "required": ["stage"], "properties": {"stage": {"enum": ["First Date", "Dating", "Married", "It's Complicated"], "type": "string"}, "vibe": {"enum": ["Fun", "Deep", "Spicy", "Philosophical"], "type": "string"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "ice_breakers": {"type": "array", "items": {"type": "string", "description": "Light and fun"}, "deep_questions": {"type": "array", "items": {"type": "string"}, "description": "For meaningful connection"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-rose-400 to-pink-400'
+),
+(
+    '99999999-9999-4999-8999-999999999999',
+    'book-lens',
+    'Book Lens',
+    'Snap a cover, get the rapid review.',
+    'BookOpen',
+    $$You are a library curator. Identify the book from the image. Provide a concise summary, rating estimate, and 'Similar To' recommendations. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[title, author]] [[rating, verdict]] [[summary]] [[similar_books]]'. ($$,
+    $${"type": "object", "required": ["image"], "properties": {"image": {"type": "string", "format": "data-url", "description": "Photo of book cover"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "title": {"type": "string"}, "author": {"type": "string"}, "rating": {"type": "string", "description": "e.g. 4.5/5 (Goodreads calc)"}, "verdict": {"type": "string", "description": "Read it | Skip it"}, "summary": {"type": "string"}, "similar_books": {"type": "array", "items": {"type": "string"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-amber-600 to-yellow-600'
+),
+(
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'mnemonic-maker',
+    'Memory Master',
+    'Memorize anything with weird AI visuals.',
+    'Zap',
+    $$You are a memory grandmaster. Create a mnemonic device for the input concept. Then, generate a Surrealist image prompt to help visualize it. Strict JSON. LAYOUT INSTRUCTIONS: Return a '_layout' field: '[[mnemonic]] [[explanation]] [[visual_prompt]]'. ($$,
+    $${"type": "object", "required": ["concept"], "properties": {"concept": {"type": "string", "description": "What do you need to remember?"}} }$$,
+    $${"type": "object", "properties": {"_layout": {"type": "string"}, "mnemonic": {"type": "string", "description": "The memory phrase"}, "explanation": {"type": "string", "description": "How it works"}, "visual_prompt": {"type": "string", "description": "Prompt for image generator"}} }$$,
+    1,
+    '2026-01-07 12:00:00.000000',
+    'from-violet-500 to-purple-500'
+)
+ON CONFLICT (id) DO UPDATE SET
+    slug = EXCLUDED.slug,
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    icon = EXCLUDED.icon,
+    system_prompt = EXCLUDED.system_prompt,
+    input_schema = EXCLUDED.input_schema,
+    output_schema = EXCLUDED.output_schema,
+    schema_version = EXCLUDED.schema_version,
+    created_at = EXCLUDED.created_at,
+    color = EXCLUDED.color;
