@@ -1,0 +1,151 @@
+.win98-file-manager {
+  @apply h-full flex flex-col;
+}
+
+/* Toolbar */
+.win98-toolbar {
+  @apply flex items-center gap-2 p-2 bg-win98-button border-b border-win98-border;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-toolbar-button {
+  @apply w-6 h-6 bg-win98-button border border-win98-button-highlight border-r-win98-button-shadow border-b-win98-button-shadow 
+         flex items-center justify-center text-win98-xs font-win98 cursor-pointer;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-toolbar-button:hover {
+  box-shadow: inset -1px -1px 0px #FFFFFF, inset 1px 1px 0px #808080;
+}
+
+.win98-toolbar-button:active {
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+.win98-toolbar-separator {
+  @apply w-px h-4 bg-win98-border;
+}
+
+.win98-toolbar-text {
+  @apply text-win98-text font-win98 text-win98-sm;
+}
+
+/* Content */
+.win98-file-manager-content {
+  @apply flex-1 overflow-auto;
+}
+
+/* Loading */
+.win98-loading {
+  @apply flex flex-col items-center justify-center h-full gap-2;
+}
+
+.win98-loading-spinner {
+  @apply w-8 h-8 border-2 border-win98-border border-t-win98-text rounded-full;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* File List */
+.win98-file-list {
+  @apply w-full;
+}
+
+.win98-file-list-header {
+  @apply flex items-center bg-win98-button border-b border-win98-border text-win98-text font-win98 text-win98-sm;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-file-list-header-name {
+  @apply flex-1 p-2;
+}
+
+.win98-file-list-header-size {
+  @apply w-20 p-2 text-center;
+}
+
+.win98-file-list-header-date {
+  @apply w-24 p-2 text-center;
+}
+
+.win98-file-list-header-type {
+  @apply w-20 p-2 text-center;
+}
+
+.win98-file-list-item {
+  @apply flex items-center border-b border-win98-border hover:bg-win98-highlight cursor-pointer;
+}
+
+.win98-file-list-item:hover {
+  @apply bg-win98-highlight;
+}
+
+.win98-file-list-item-icon {
+  @apply w-6 h-6 flex items-center justify-center text-win98-sm p-1;
+}
+
+.win98-file-list-item-name {
+  @apply flex-1 p-2 text-win98-text font-win98 text-win98-sm;
+}
+
+.win98-file-list-item-size {
+  @apply w-20 p-2 text-center text-win98-text font-win98 text-win98-sm;
+}
+
+.win98-file-list-item-date {
+  @apply w-24 p-2 text-center text-win98-text font-win98 text-win98-sm;
+}
+
+.win98-file-list-item-type {
+  @apply w-20 p-2 text-center text-win98-text font-win98 text-win98-sm;
+}
+
+.win98-file-list-item-actions {
+  @apply flex gap-1 p-2;
+}
+
+.win98-file-list-item-name {
+  @apply flex-1 p-2 text-win98-text font-win98 text-win98-sm cursor-pointer;
+}
+
+.win98-file-list-item-name:hover {
+  @apply bg-win98-highlight;
+}
+
+/* File Grid */
+.win98-file-grid {
+  @apply grid grid-cols-4 gap-4 p-4;
+}
+
+.win98-file-grid-item {
+  @apply flex flex-col items-center p-2 border border-transparent hover:border-win98-border cursor-pointer;
+  min-height: 80px;
+}
+
+.win98-file-grid-item:hover {
+  @apply bg-win98-highlight;
+}
+
+.win98-file-grid-item-icon {
+  @apply text-2xl mb-1;
+}
+
+.win98-file-grid-item-name {
+  @apply text-win98-text font-win98 text-win98-xs text-center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+/* Status Bar */
+.win98-statusbar {
+  @apply flex items-center gap-2 p-1 bg-win98-button border-t border-win98-border text-win98-text font-win98 text-win98-xs;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-statusbar-separator {
+  @apply text-win98-border;
+}

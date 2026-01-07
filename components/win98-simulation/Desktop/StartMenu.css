@@ -1,0 +1,109 @@
+.win98-start-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.win98-start-menu {
+  position: absolute;
+  bottom: 32px;
+  left: 0;
+  width: 300px;
+  background-color: #C0C0C0;
+  border: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  display: flex;
+  box-shadow: 2px 2px 0px #808080;
+}
+
+.win98-start-menu-sidebar {
+  width: 40px;
+  background: linear-gradient(to bottom, #000080 0%, #0000FF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.win98-start-menu-logo {
+  transform: rotate(-90deg);
+  white-space: nowrap;
+}
+
+.win98-start-menu-logo-text {
+  color: white;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+.win98-start-menu-content {
+  flex: 1;
+  padding: 4px 0;
+}
+
+.win98-menu-section {
+  border-bottom: 1px solid #808080;
+}
+
+.win98-menu-section:last-child {
+  border-bottom: none;
+}
+
+.win98-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 9pt;
+  color: #000000;
+  cursor: pointer;
+  position: relative;
+}
+
+.win98-menu-item:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.win98-menu-icon {
+  width: 16px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.win98-menu-arrow {
+  margin-left: auto;
+  font-size: 8px;
+}
+
+.win98-submenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background-color: #C0C0C0;
+  border: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  min-width: 200px;
+  box-shadow: 2px 2px 0px #808080;
+  display: none;
+  z-index: 1000;
+}
+
+.win98-menu-section:hover .win98-submenu {
+  display: block;
+}
+
+.win98-submenu .win98-menu-item {
+  border-bottom: 1px solid #808080;
+}
+
+.win98-submenu .win98-menu-item:last-child {
+  border-bottom: none;
+}

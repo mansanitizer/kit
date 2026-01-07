@@ -1,0 +1,97 @@
+.win98-run {
+  @apply h-full flex flex-col;
+}
+
+/* Run Header */
+.win98-run-header {
+  @apply p-4 border-b border-win98-border;
+}
+
+.win98-run-header h3 {
+  @apply text-win98-text font-win98 text-win98-base font-bold mb-2;
+  color: #000080;
+}
+
+.win98-run-header p {
+  @apply text-win98-text font-win98 text-win98-sm;
+  line-height: 1.4;
+}
+
+/* Run Content */
+.win98-run-content {
+  @apply flex-1 p-4 space-y-4;
+}
+
+.win98-run-input-group {
+  @apply flex flex-col gap-2;
+}
+
+.win98-run-label {
+  @apply text-win98-text font-win98 text-win98-sm font-bold;
+}
+
+.win98-run-input {
+  @apply px-2 py-1 bg-white border border-win98-border text-win98-text font-win98 text-win98-sm;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+.win98-run-input:focus {
+  @apply outline-none;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF, 0 0 0 1px #000080;
+}
+
+/* Run History */
+.win98-run-history {
+  @apply space-y-2;
+}
+
+.win98-run-history-list {
+  @apply max-h-32 overflow-y-auto border border-win98-border;
+  background: white;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+.win98-run-history-item {
+  @apply w-full p-2 text-left bg-transparent border-none text-win98-text font-win98 text-win98-sm cursor-pointer;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.win98-run-history-item:hover {
+  @apply bg-win98-highlight;
+}
+
+.win98-run-history-item:last-child {
+  @apply border-b-0;
+}
+
+/* Run Help */
+.win98-run-help {
+  @apply border-t border-win98-border pt-4;
+}
+
+.win98-run-help h4 {
+  @apply text-win98-text font-win98 text-win98-sm font-bold mb-2;
+  color: #000080;
+}
+
+.win98-run-help ul {
+  @apply text-win98-text font-win98 text-win98-xs;
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.win98-run-help li {
+  @apply mb-1;
+  line-height: 1.3;
+}
+
+.win98-run-help strong {
+  @apply font-bold;
+  color: #000080;
+}
+
+/* Run Actions */
+.win98-run-actions {
+  @apply flex justify-end gap-2 p-4 border-t border-win98-border bg-win98-button;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}

@@ -8,4 +8,7 @@ export type Tool = {
     system_prompt: string
     input_schema: Record<string, any>
     output_schema: Record<string, any>
+    schema_version?: number
+    created_at?: string
+    model?: string
 }

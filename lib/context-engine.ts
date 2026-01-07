@@ -37,7 +37,7 @@ export class ContextEngine {
 
         if (memories.length === 0) return ""
 
-        const contextBlock = memories.map(m => `- ${m.content}`).join("\n")
+        const contextBlock = memories.map((m: { content: string }) => `- ${m.content}`).join("\n")
         return `\n\n[[MEMORY CONTEXT]]\n${contextBlock}\n`
     }
 
@@ -50,8 +50,7 @@ export class ContextEngine {
         // Ideally we abstract "callLLM" but for speed I'll inline a lightweight call.
 
         try {
-            console.log("[ContextEngine] Reflecting...")
-            const apiKey = "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"
+            const apiKey = process.env.KIT_OPENROUTER_API_KEY;
 
             const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",

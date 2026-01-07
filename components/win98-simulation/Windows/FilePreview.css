@@ -1,0 +1,138 @@
+.win98-file-preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #C0C0C0;
+}
+
+.win98-file-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #C0C0C0;
+  border-bottom: 1px solid #808080;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-file-preview-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000000;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+}
+
+.win98-file-preview-icon {
+  font-size: 18px;
+}
+
+.win98-file-preview-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.win98-file-preview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #000000;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+}
+
+.win98-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #808080;
+  border-top: 2px solid #000000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.win98-file-preview-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #FF0000;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+}
+
+.win98-file-preview-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.win98-file-preview-text {
+  color: #000000;
+  font-family: "Courier New", monospace;
+  font-size: 10pt;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.win98-file-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.win98-file-preview-info-item {
+  color: #000000;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+  padding: 4px 0;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.win98-file-preview-info-item:last-child {
+  border-bottom: none;
+}
+
+.win98-file-preview-info-item strong {
+  color: #000080;
+}
+
+.win98-file-preview-actions {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  background-color: #C0C0C0;
+  border-top: 1px solid #808080;
+}
+
+.win98-button {
+  padding: 4px 16px;
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+  border: 2px outset #C0C0C0;
+  color: #000000;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-button:hover {
+  box-shadow: inset -1px -1px 0px #FFFFFF, inset 1px 1px 0px #808080;
+}
+
+.win98-button:active {
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+.win98-button-small {
+  padding: 2px 8px;
+  font-size: 9pt;
+}

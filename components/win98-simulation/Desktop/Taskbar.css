@@ -1,0 +1,148 @@
+.win98-taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.win98-start-button {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+  border: 2px outset #C0C0C0;
+  padding: 4px 8px;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+  color: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 60px;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-start-button:hover {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+}
+
+.win98-start-button:active {
+  border: 2px inset #C0C0C0;
+  box-shadow: inset -1px -1px 0px #FFFFFF, inset 1px 1px 0px #808080;
+}
+
+.win98-start-icon {
+  font-size: 12px;
+}
+
+.win98-taskbar-items {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.win98-taskbar-item {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+  border: 2px outset #C0C0C0;
+  padding: 4px 8px;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 8pt;
+  color: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  max-width: 150px;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win98-taskbar-item:hover {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+}
+
+.win98-taskbar-item:active {
+  border: 2px inset #C0C0C0;
+  box-shadow: inset -1px -1px 0px #FFFFFF, inset 1px 1px 0px #808080;
+}
+
+.win98-taskbar-item.active {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #C0C0C0 50%, #808080 100%);
+  border: 2px inset #C0C0C0;
+  box-shadow: inset -1px -1px 0px #FFFFFF, inset 1px 1px 0px #808080;
+}
+
+.win98-taskbar-item-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.win98-taskbar-item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win98-system-tray {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  background-color: #C0C0C0;
+  border-left: 2px solid #808080;
+  border-top: 2px solid #808080;
+  border-right: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+  height: 24px;
+}
+
+.win98-tray-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.win98-tray-icon.connected {
+  color: #008000;
+  animation: pulse-green 2s infinite;
+}
+
+.win98-tray-icon.disconnected {
+  color: #FF0000;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.win98-clock {
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 8pt;
+  color: #000000;
+  padding: 2px 4px;
+  background-color: #C0C0C0;
+  border: 1px solid #808080;
+  min-width: 60px;
+  text-align: center;
+}

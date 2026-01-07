@@ -5,13 +5,14 @@ import { ProfileService } from "@/lib/profile-service"
 import { ContextEngine } from "@/lib/context-engine"
 
 export async function POST(req: NextRequest) {
-    const supabase = createServerClient(); // Isolating 401 cause
+    const supabase = createServerClient();
     try {
-        // PRODUCTION CREDENTIALS
-        const apiKey = "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";
+        const apiKey = process.env.KIT_OPENROUTER_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ error: "Missing KIT_OPENROUTER_API_KEY in environment" }, { status: 500 })
+        }
 
-        const model = process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001"
-        // console.log(`[RunTool] STARTING REQUEST. Key length: ${apiKey.length}`)
+
 
         const body = await req.json()
         const { toolSlug, input, sessionId } = body
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
         if (!tool) {
             return NextResponse.json({ error: "Tool not found" }, { status: 404 })
         }
+
+        const model = tool.model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001"
 
         // 1.5 Ensure Profile Exists & Retrieve Context
         let contextBlock = ""
@@ -43,19 +46,14 @@ export async function POST(req: NextRequest) {
             { role: "user", content: JSON.stringify(input) }
         ]
 
-        console.log("--- [LLM RAW INPUT MESSAGES] ---")
-        console.log(JSON.stringify(messages, null, 2))
-        console.log("--------------------------------")
-
         // 3. Call OpenRouter
-        console.log(`[RunTool] Fetching OpenRouter...`)
-
+        console.log("Using Model:", model)
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://kit.com", // Optional, for OpenRouter rankings
+                "HTTP-Referer": "https://kit.com",
                 "X-Title": "Kit AI"
             },
             body: JSON.stringify({
@@ -65,26 +63,27 @@ export async function POST(req: NextRequest) {
             })
         })
 
-        console.log(`[RunTool] Response Status: ${response.status}`)
-
         if (!response.ok) {
             const errorText = await response.text()
-            console.error(`[RunTool] ERROR BODY: ${errorText}`)
+            console.error(`[RunTool] OpenRouter Error: ${errorText}`)
             return NextResponse.json({ error: `OpenRouter Error: ${errorText}` }, { status: response.status })
         }
 
         const completion = await response.json()
         const outputContent = completion.choices[0].message.content
-
-        console.log("\n------ [LLM RAW OUTPUT] ------")
-        console.log(outputContent)
-        console.log("------------------------------\n")
-
         const outputData = JSON.parse(outputContent)
 
-        // 4. Log Interaction to Supabase (Async, fire and forget)
-        // Note: In Next.js App Router, strictly awaiting is safer for serverless execution duration, 
-        // but for speed we can try Promise.all or just await it. Awaiting is safer.
+        // 3.5 Robust Layout Injection (Server-side)
+        if (!outputData._layout) {
+            // Attempt to find layout pattern in system prompt or just generate a default
+            const layoutRegex = /LAYOUT INSTRUCTIONS:.*?(?:Return a _layout field: )?(\[\[.*?\]\](?:\s+\[\[.*?\]\])*)/i;
+            const match = tool.system_prompt.match(layoutRegex);
+            if (match && match[1]) {
+                outputData._layout = match[1];
+            }
+        }
+
+        // 4. Log Interaction to Supabase
         try {
             const { error: dbError } = await supabase.from('interactions').insert({
                 tool_slug: toolSlug,
@@ -95,16 +94,49 @@ export async function POST(req: NextRequest) {
 
             if (dbError) {
                 console.error("Failed to log interaction:", dbError)
-            } else {
-                console.log("[RunTool] Interaction logged to DB.")
             }
 
             // 5. Context Reflection (Fire and forget)
             if (sessionId) {
                 const contextEngine = new ContextEngine()
-                // We don't await this to keep the API fast (Next.js serverless considerations aside)
                 contextEngine.reflect(sessionId, JSON.stringify(input), outputData).catch(err => console.error(err))
             }
+
+            // --- SPECIAL HANDLER: Tool Forge ---
+            if (toolSlug === 'tool-forge') {
+                // The outputData IS the tool definition.
+                // We simply need to save it to the 'tools' table.
+                const newTool = {
+                    id: crypto.randomUUID(),
+                    slug: outputData.slug,
+                    name: outputData.name,
+                    description: outputData.description || "",
+                    icon: outputData.icon || "Zap",
+                    system_prompt: outputData.system_prompt,
+                    input_schema: outputData.input_schema || {},
+                    output_schema: outputData.output_schema || {},
+                    schema_version: 1,
+                    created_at: new Date().toISOString(),
+                    color: outputData.color || "from-gray-500 to-gray-700",
+                    model: outputData.model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001"
+                }
+
+                const { error: insertError } = await supabase.from('tools').insert(newTool)
+
+                if (insertError) {
+                    console.error("ToolForge Auto-Save Error:", insertError)
+                    // We don't fail the request, but we might want to signal error in the output?
+                    // For now, let's assume if it fails, the user will see it when they try to find it.
+                    // But the prompt wants specific success/fail UI.
+
+                    // Let's flag the output so frontend knows
+                    outputData._tool_forge_status = "error"
+                    outputData._tool_forge_error = insertError.message
+                } else {
+                    outputData._tool_forge_status = "success"
+                }
+            }
+            // -----------------------------------
 
         } catch (dbEx) {
             console.error("Exception logging into DB/Reflection:", dbEx)

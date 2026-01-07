@@ -1,0 +1,43 @@
+.win98-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.win98-loading-overlay-content {
+  background-color: #C0C0C0;
+  border: 2px outset #C0C0C0;
+  padding: 20px;
+  text-align: center;
+  min-width: 200px;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-loading-spinner-large {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #C0C0C0;
+  border-top: 3px solid #000080;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+.win98-loading-message {
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 10pt;
+  color: #000000;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

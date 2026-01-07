@@ -24,18 +24,26 @@ export function DynamicForm({ schema, value, onChange, disabled }: DynamicFormPr
         onChange({ ...value, [key]: val });
     }
 
+    // Sort properties: Images/Important fields first
+    const sortedKeys = Object.keys(properties).sort((a, b) => {
+        const aOrder = a === 'image' ? -1 : 0;
+        const bOrder = b === 'image' ? -1 : 0;
+        return aOrder - bOrder;
+    });
+
     return (
         <div className="space-y-8">
-            {Object.keys(properties).map((key) => {
+            {sortedKeys.map((key) => {
                 const field = properties[key];
                 const isRequired = required.includes(key);
                 const currentValue = value[key];
-                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const label = field.title || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-                // 1. Image Upload
-                if (key === 'image' || (field.type === 'string' && field.format === 'data-url')) {
-                    return (
-                        <div key={key}>
+                // Component Selection
+                const componentView = (() => {
+                    // 1. Image Upload
+                    if (key === 'image' || (field.type === 'string' && field.format === 'data-url')) {
+                        return (
                             <ImageUpload
                                 label={label}
                                 onUpload={(file) => {
@@ -44,48 +52,39 @@ export function DynamicForm({ schema, value, onChange, disabled }: DynamicFormPr
                                     reader.readAsDataURL(file)
                                 }}
                             />
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 2. Boolean -> Checkbox or Switch
-                if (field.type === 'boolean') {
-                    return (
-                        <div key={key}>
+                    // 2. Boolean -> Checkbox
+                    if (field.type === 'boolean') {
+                        return (
                             <Checkbox
                                 label={field.description || label}
                                 checked={!!currentValue}
                                 onChange={(e) => handleChange(key, e.target.checked)}
                                 disabled={disabled}
                             />
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 3. Integer with Range -> Slider
-                if (field.type === 'integer' && (field.minimum !== undefined && field.maximum !== undefined)) {
-                    return (
-                        <div key={key}>
+                    // 3. Integer with Range -> Slider
+                    if (field.type === 'integer' && (field.minimum !== undefined && field.maximum !== undefined)) {
+                        return (
                             <Slider
                                 label={label}
                                 min={field.minimum}
                                 max={field.maximum}
-                                value={currentValue ?? field.minimum} // Default to min
+                                value={currentValue ?? field.minimum}
                                 onChange={(val) => handleChange(key, val)}
                                 disabled={disabled}
                                 unit={field.unit}
                             />
-                            {field.description && (
-                                <p className="text-xs text-white/40 mt-1">{field.description}</p>
-                            )}
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 4. Array of Enums -> MultiSelect
-                if (field.type === 'array' && field.items?.enum) {
-                    return (
-                        <div key={key}>
+                    // 4. Array of Enums -> MultiSelect
+                    if (field.type === 'array' && field.items?.enum) {
+                        return (
                             <MultiSelect
                                 label={label}
                                 options={field.items.enum}
@@ -93,36 +92,26 @@ export function DynamicForm({ schema, value, onChange, disabled }: DynamicFormPr
                                 onChange={(val) => handleChange(key, val)}
                                 disabled={disabled}
                             />
-                            {field.description && (
-                                <p className="text-xs text-white/40 mt-1">{field.description}</p>
-                            )}
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 5. Enum (Small) -> Radio Group
-                if (field.enum && field.enum.length <= 4) {
-                    return (
-                        <div key={key}>
+                    // 5. Enum (Small) -> Radio Group
+                    if (field.enum && field.enum.length <= 4) {
+                        return (
                             <RadioGroup
                                 label={label}
                                 options={field.enum}
                                 value={currentValue || ""}
                                 onChange={(val) => handleChange(key, val)}
                                 disabled={disabled}
-                                orientation="horizontal" // Default to horizontal for small counts
+                                orientation="horizontal"
                             />
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 6. Enum (Large) -> Select (Native for now, or styled Radio List)
-                if (field.enum) {
-                    // For larger enums, maybe vertical radio list or dropdown. 
-                    // Using Vertical Radio for 5-10, Drodown for 10+.
-                    // For generic "simple" UI, let's stick to RadioGroup Vertical for mapped clarity.
-                    return (
-                        <div key={key}>
+                    // 6. Enum (Large) -> Radio List
+                    if (field.enum) {
+                        return (
                             <RadioGroup
                                 label={label}
                                 options={field.enum}
@@ -131,37 +120,54 @@ export function DynamicForm({ schema, value, onChange, disabled }: DynamicFormPr
                                 disabled={disabled}
                                 orientation="vertical"
                             />
-                        </div>
-                    )
-                }
+                        )
+                    }
 
-                // 7. Long Text -> TextArea
-                if (field.type === 'string' && (field.maxLength > 100 || key === 'context' || key.includes('text') || key === 'cv_text' || field.description?.includes('long'))) {
+                    // 7. Long Text -> TextArea
+                    const isLongText = field.type === 'string' && (
+                        field.maxLength > 100 ||
+                        ['context', 'description', 'notes', 'text', 'cv_text'].some(k => key.toLowerCase().includes(k)) ||
+                        field.description?.toLowerCase().includes('long')
+                    );
+
+                    if (isLongText) {
+                        return (
+                            <TextArea
+                                label={label}
+                                placeholder={field.description || `Enter ${label}...`}
+                                value={currentValue || ""}
+                                onChange={(e) => handleChange(key, e.target.value)}
+                                disabled={disabled}
+                                rows={key === 'cv_text' ? 10 : 4}
+                            />
+                        )
+                    }
+
+                    // 8. Default -> TextInput
                     return (
-                        <TextArea
-                            key={key}
+                        <TextInput
                             label={label}
                             placeholder={field.description || `Enter ${label}...`}
                             value={currentValue || ""}
                             onChange={(e) => handleChange(key, e.target.value)}
                             disabled={disabled}
-                            rows={key === 'cv_text' ? 10 : 4}
+                            type={field.type === 'integer' || field.type === 'number' ? 'number' : 'text'}
                         />
                     )
-                }
+                })();
 
-                // 8. Default -> TextInput
                 return (
-                    <TextInput
-                        key={key}
-                        label={label}
-                        placeholder={field.description || `Enter ${label}...`}
-                        value={currentValue || ""}
-                        onChange={(e) => handleChange(key, e.target.value)}
-                        disabled={disabled}
-                        type={field.type === 'integer' || field.type === 'number' ? 'number' : 'text'}
-                    />
-                )
+                    <div key={key} className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            {isRequired && <span className="text-rose-500 text-xs font-bold leading-none">*</span>}
+                            {/* Label is handled by components usually, but we can wrap if needed */}
+                        </div>
+                        {componentView}
+                        {field.description && !['boolean', 'string'].includes(field.type) && (
+                            <p className="text-[10px] text-white/30 uppercase tracking-widest pl-1">{field.description}</p>
+                        )}
+                    </div>
+                );
             })}
         </div>
     )

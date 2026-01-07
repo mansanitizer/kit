@@ -1,8 +1,7 @@
 import { createServerClient } from "./supabase-server"
 
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || "openai/text-embedding-3-small"
-// Hardcoding to fix 401 - env var on local machine is corrupted
-const OPENROUTER_API_KEY = "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"
+const OPENROUTER_API_KEY = process.env.KIT_OPENROUTER_API_KEY;
 
 export class RAGService {
     private supabase = createServerClient()

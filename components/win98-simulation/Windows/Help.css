@@ -1,0 +1,97 @@
+.win98-help {
+  @apply h-full flex;
+}
+
+/* Help Navigation */
+.win98-help-nav {
+  @apply w-48 border-r border-win98-border flex flex-col;
+}
+
+.win98-help-nav-header {
+  @apply p-2 bg-win98-button border-b border-win98-border text-win98-text font-win98 text-win98-sm font-bold;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-help-nav-content {
+  @apply flex-1 overflow-auto;
+}
+
+.win98-help-nav-item {
+  @apply w-full p-2 text-left bg-transparent border-none text-win98-text font-win98 text-win98-sm cursor-pointer;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.win98-help-nav-item:hover {
+  @apply bg-win98-highlight;
+}
+
+.win98-help-nav-item.active {
+  @apply bg-win98-highlight;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+/* Help Content */
+.win98-help-content {
+  @apply flex-1 flex flex-col;
+}
+
+.win98-help-content-header {
+  @apply p-3 bg-win98-button border-b border-win98-border;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-help-content-header h2 {
+  @apply text-win98-text font-win98 text-win98-base font-bold m-0;
+}
+
+.win98-help-content-body {
+  @apply flex-1 overflow-auto p-4;
+}
+
+.win98-help-content-body h3 {
+  @apply text-win98-text font-win98 text-win98-base font-bold mb-3 mt-0;
+  color: #000080;
+}
+
+.win98-help-content-body h4 {
+  @apply text-win98-text font-win98 text-win98-sm font-bold mb-2 mt-4;
+  color: #000080;
+}
+
+.win98-help-content-body p {
+  @apply text-win98-text font-win98 text-win98-sm mb-3;
+  line-height: 1.4;
+}
+
+.win98-help-content-body ul {
+  @apply text-win98-text font-win98 text-win98-sm mb-3;
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.win98-help-content-body ol {
+  @apply text-win98-text font-win98 text-win98-sm mb-3;
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.win98-help-content-body li {
+  @apply mb-1;
+  line-height: 1.3;
+}
+
+.win98-help-content-body strong {
+  @apply font-bold;
+  color: #000080;
+}
+
+.win98-help-content-body ul ul {
+  @apply mt-1 mb-1;
+  list-style-type: circle;
+}
+
+/* Help Actions */
+.win98-help-actions {
+  @apply flex justify-end p-3 border-t border-win98-border bg-win98-button;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}

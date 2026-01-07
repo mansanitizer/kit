@@ -1,0 +1,107 @@
+.win98-upload {
+  @apply h-full flex flex-col;
+}
+
+/* Upload Area */
+.win98-upload-area {
+  @apply p-4 border-b border-win98-border;
+}
+
+.win98-upload-dropzone {
+  @apply border-2 border-dashed border-win98-border bg-win98-window p-8 text-center cursor-pointer;
+  transition: all 0.2s ease;
+}
+
+.win98-upload-dropzone:hover {
+  @apply border-win98-text bg-win98-highlight;
+}
+
+.win98-upload-dropzone.drag-active {
+  @apply border-win98-text bg-win98-highlight;
+  border-style: solid;
+}
+
+.win98-upload-dropzone-content {
+  @apply flex flex-col items-center gap-2;
+}
+
+.win98-upload-icon {
+  @apply text-4xl;
+}
+
+.win98-upload-text {
+  @apply text-win98-text font-win98 text-win98-base font-bold;
+}
+
+.win98-upload-subtext {
+  @apply text-win98-text font-win98 text-win98-sm;
+  color: #808080;
+}
+
+/* Upload Queue */
+.win98-upload-queue {
+  @apply flex-1 flex flex-col;
+}
+
+.win98-upload-queue-header {
+  @apply flex items-center justify-between p-2 bg-win98-button border-b border-win98-border text-win98-text font-win98 text-win98-sm;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+}
+
+.win98-button-small {
+  @apply px-2 py-1 text-win98-xs;
+}
+
+.win98-upload-queue-content {
+  @apply flex-1 overflow-auto p-2;
+}
+
+.win98-upload-empty {
+  @apply text-center text-win98-text font-win98 text-win98-sm p-4;
+  color: #808080;
+}
+
+.win98-upload-item {
+  @apply flex gap-3 p-3 border-b border-win98-border;
+}
+
+.win98-upload-item:last-child {
+  @apply border-b-0;
+}
+
+.win98-upload-item-icon {
+  @apply text-xl flex-shrink-0;
+}
+
+.win98-upload-item-content {
+  @apply flex-1 min-w-0;
+}
+
+.win98-upload-item-name {
+  @apply text-win98-text font-win98 text-win98-sm font-bold mb-1;
+  word-break: break-word;
+}
+
+.win98-upload-item-meta {
+  @apply flex items-center gap-2 text-win98-text font-win98 text-win98-xs mb-2;
+}
+
+.win98-upload-item-separator {
+  @apply text-win98-border;
+}
+
+.win98-upload-item-status {
+  text-transform: capitalize;
+}
+
+/* Progress Bar */
+.win98-upload-progress {
+  @apply w-full h-2 bg-win98-border;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #FFFFFF;
+}
+
+.win98-upload-progress-bar {
+  @apply h-full bg-win98-button;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
+  transition: width 0.2s ease;
+}

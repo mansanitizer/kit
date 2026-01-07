@@ -1,0 +1,53 @@
+.win98-desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 32px; /* Account for taskbar height */
+  background-color: #008080;
+  overflow: hidden;
+  user-select: none;
+}
+
+.win98-desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  cursor: pointer;
+  width: 80px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.win98-desktop-icon:hover {
+  background-color: #000080;
+  color: white;
+  border: 1px solid #000080;
+}
+
+.win98-desktop-icon.selected {
+  background-color: #000080;
+  color: white;
+  border: 1px solid #000080;
+}
+
+.win98-desktop-icon-image {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.win98-desktop-icon-label {
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 8pt;
+  line-height: 1.2;
+  word-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
+}
