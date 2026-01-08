@@ -56,6 +56,54 @@ export class RAGService {
         else console.log("[RAG] Memory stored.")
     }
 
+    async getMemories(userId: string) {
+        if (!userId) return []
+
+        const { data, error } = await this.supabase
+            .from('memory_embeddings')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+
+        if (error) {
+            console.error("[RAG] Failed to fetch memories:", error)
+            return []
+        }
+        return data
+    }
+
+    async deleteMemory(id: string, userId: string) {
+        if (!id || !userId) return
+
+        const { error } = await this.supabase
+            .from('memory_embeddings')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', userId)
+
+        if (error) console.error("[RAG] Failed to delete memory:", error)
+    }
+
+    async updateMemory(id: string, userId: string, content: string, category: string, importance: number) {
+        // For vector stores, usually it's better to regenerate embedding.
+        // So we can just update content and regenerate embedding.
+        const embedding = await this.generateEmbedding(content)
+        if (embedding.length === 0) return
+
+        const { error } = await this.supabase
+            .from('memory_embeddings')
+            .update({
+                content,
+                category,
+                importance,
+                embedding
+            })
+            .eq('id', id)
+            .eq('user_id', userId)
+
+        if (error) console.error("[RAG] Failed to update memory:", error)
+    }
+
     async searchMemories(userId: string, query: string, limit: number = 5) {
         if (!query || !userId) return []
 

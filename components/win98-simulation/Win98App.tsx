@@ -12,6 +12,7 @@ import { HistoryViewer } from './Windows/HistoryViewer';
 import { RecycleBinWindow } from './Windows/RecycleBinWindow';
 import { MyComputerWindow } from './Windows/MyComputerWindow';
 import { AboutMeWindow } from './Windows/AboutMeWindow';
+import { BrainWindow } from './Windows/BrainWindow';
 import { getAllTools } from '@/lib/tool-registry';
 
 import './styles/win98.css';
@@ -119,13 +120,21 @@ const Win98App: React.FC = () => {
                 position: { x: 20, y: 420 },
                 type: 'about-me',
                 action: () => openAboutMe(),
+            },
+            {
+                id: 'brain',
+                title: 'My Brain',
+                icon: 'brain', // Need to support this in Win98Icon? Or use fallback
+                position: { x: 20, y: 520 },
+                type: 'brain',
+                action: () => openBrain(),
             }
         ];
         setDesktopIcons(icons);
     }, [tools]);
 
     // Window Management
-    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' | 'history' | 'recycle-bin' | 'my-computer' | 'about-me' }) => {
+    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' | 'history' | 'recycle-bin' | 'my-computer' | 'about-me' | 'brain' }) => {
         setOpenWindows(prev => {
             const existing = prev.find(w => w.id === windowDetails.id);
             if (existing) {
@@ -185,6 +194,16 @@ const Win98App: React.FC = () => {
             type: 'about-me',
             icon: 'info',
             size: { width: 600, height: 500 }
+        });
+    };
+
+    const openBrain = () => {
+        openWindow({
+            id: 'brain-window',
+            title: 'My Brain',
+            type: 'brain',
+            icon: 'brain', // Needs support
+            size: { width: 500, height: 600 }
         });
     };
 
@@ -326,6 +345,15 @@ const Win98App: React.FC = () => {
                 <AboutMeWindow
                     onClose={() => closeWindow(win.id)}
                     isActive={activeWindowId === win.id}
+                />
+            );
+        } else if (win.type === 'brain') {
+            return (
+                <BrainWindow
+                    onClose={() => closeWindow(win.id)}
+                    isActive={activeWindowId === win.id}
+                    sessionId={sessionId || undefined}
+                    onFocus={() => bringToFront(win.id)}
                 />
             );
         }
