@@ -7,6 +7,7 @@
   --win98-accent-light: #0000c0;
   --win98-desktop-start: #008080;
   --win98-desktop-end: #0080c0;
+  --win98-desktop-text: #ffffff;
 }
 
 /* Import animations */
@@ -123,7 +124,7 @@
   overflow: hidden;
   font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
   font-size: 8pt;
-  color: #ffffff;
+  color: var(--win98-desktop-text);
 }
 
 /* Desktop Icons */

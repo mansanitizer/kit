@@ -62,6 +62,7 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
         return {
             '--win98-accent-main': themeColor,
             '--win98-accent-light': `color-mix(in srgb, ${themeColor}, white 30%)`,
+            '--win98-desktop-text': themeColor,
         } as React.CSSProperties;
     };
 
