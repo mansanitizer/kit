@@ -11,6 +11,7 @@ interface ToolsFolderProps {
     onClose: () => void;
     onFocus: () => void;
     isActive: boolean;
+    sessionId?: string;
 }
 
 export const ToolsFolder: React.FC<ToolsFolderProps> = ({
@@ -18,7 +19,8 @@ export const ToolsFolder: React.FC<ToolsFolderProps> = ({
     onToolOpen,
     onClose,
     onFocus,
-    isActive
+    isActive,
+    sessionId
 }) => {
     return (
         <div className="h-full flex flex-col bg-[#ffffff] text-black" onClick={onFocus}>
@@ -43,9 +45,37 @@ export const ToolsFolder: React.FC<ToolsFolderProps> = ({
                 {tools.map(tool => (
                     <div
                         key={tool.slug}
-                        className="flex flex-col items-center justify-start cursor-pointer hover:bg-blue-100/50 p-2 rounded group"
+                        className="flex flex-col items-center justify-start cursor-pointer hover:bg-blue-100/50 p-2 rounded group relative"
                         onDoubleClick={() => onToolOpen(tool)}
                     >
+                        <div
+                            className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white rounded-full z-10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Delete tool "${tool.name}"?`)) {
+                                    fetch(`/api/tools/${tool.slug}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'x-session-id': sessionId || ''
+                                        }
+                                    })
+                                        .then(async res => {
+                                            if (res.ok) {
+                                                // Ideally trigger a refresh or update state. 
+                                                // For now, we might need to reload or rely on parent update.
+                                                window.location.reload();
+                                            } else {
+                                                // Try to get error message
+                                                const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+                                                alert(err.error || 'Failed to delete tool');
+                                            }
+                                        });
+                                }
+                            }}
+                            title="Delete Tool"
+                        >
+                            <span className="text-xs font-bold">×</span>
+                        </div>
                         <div className="mb-1">
                             {/* Use dynamic icon mapping if possible, or generic tool icon */}
                             <Win98Icon name={tool.icon || "settings"} size={32} />

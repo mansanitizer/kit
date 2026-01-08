@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { createServerClient } from "@/lib/supabase-server"
 
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url)
         const limit = parseInt(searchParams.get("limit") || "50")
         const search = searchParams.get("search") || ""
+        const sessionId = req.headers.get("x-session-id");
+
+        const supabase = createServerClient({
+            'x-session-id': sessionId || ''
+        });
 
         let query = supabase
             .from("interactions")
             .select("*")
-            .order("created_at", { ascending: false })
+
+        if (sessionId) {
+            query = query.or(`user_id.is.null,user_id.eq.${sessionId}`)
+        } else {
+            query = query.is("user_id", null)
+        }
+
+        query = query.order("created_at", { ascending: false })
             .limit(limit)
 
         if (search) {

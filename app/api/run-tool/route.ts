@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json()
         const { toolSlug, input, sessionId } = body
+        console.log(`[RunTool] Slug: ${toolSlug}, SessionId: ${sessionId || 'NULL'}`);
 
         if (!toolSlug || !input) {
             return NextResponse.json({ error: "Missing toolSlug or input" }, { status: 400 })
@@ -38,6 +39,30 @@ export async function POST(req: NextRequest) {
             // Context Retrieval
             const contextEngine = new ContextEngine()
             contextBlock = await contextEngine.retrieve(sessionId, JSON.stringify(input))
+
+            // 1.7 Resolve File Attachments (@@filename)
+            // Look for @@filename in the input string
+            const inputString = JSON.stringify(input);
+            const fileMatches = [...inputString.matchAll(/@@([\w\-. ]+)/g)];
+            const uniqueFilenames = [...new Set(fileMatches.map(m => m[1]))];
+
+            if (uniqueFilenames.length > 0) {
+                console.log(`[RunTool] Found attachments: ${uniqueFilenames.join(", ")}`);
+                const { data: files } = await supabase
+                    .from('user_files')
+                    .select('filename, content, file_type')
+                    .in('filename', uniqueFilenames)
+                    .or(`user_id.eq.${sessionId},user_id.is.null`);
+
+                if (files && files.length > 0) {
+                    contextBlock += "\n\n=== ATTACHED FILES ===\n";
+                    for (const f of files) {
+                        const label = f.file_type === 'image' ? `[Image Description: ${f.filename}]` : `[File: ${f.filename}]`;
+                        contextBlock += `${label}\n${f.content}\n\n`;
+                    }
+                    contextBlock += "======================\n";
+                }
+            }
         }
 
         // 2. Construct Prompt
@@ -118,7 +143,8 @@ export async function POST(req: NextRequest) {
                     schema_version: 1,
                     created_at: new Date().toISOString(),
                     color: outputData.color || "from-gray-500 to-gray-700",
-                    model: outputData.model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001"
+                    model: outputData.model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001",
+                    user_id: sessionId || null // Scoped to the user who ran the forge
                 }
 
                 const { error: insertError } = await supabase.from('tools').insert(newTool)

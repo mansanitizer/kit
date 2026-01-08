@@ -23,15 +23,15 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
   useEffect(() => {
     loadFiles();
     setupConnectionMonitoring();
-    
+
     // Listen for file updates
     const handleFilesUpdated = () => {
       console.log('FileManager: Files updated, refreshing...');
       loadFiles();
     };
-    
+
     window.addEventListener('fileops:files-updated', handleFilesUpdated);
-    
+
     return () => {
       window.removeEventListener('fileops:files-updated', handleFilesUpdated);
     };
@@ -42,7 +42,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
     const handleStatusUpdate = (event: CustomEvent) => {
       const { status, isConnected } = event.detail;
       setConnectionStatus(status);
-      
+
       if (isConnected && files.length === 0) {
         // Reload files if we just connected and have no files
         loadFiles();
@@ -50,7 +50,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
     };
 
     window.addEventListener('fileops:status-update', handleStatusUpdate as EventListener);
-    
+
     // Check initial connection status
     checkConnectionStatus();
   };
@@ -60,7 +60,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
       if (window.electronAPI?.fileops?.testConnection) {
         const isConnected = await window.electronAPI.fileops.testConnection();
         setConnectionStatus(isConnected ? 'connected' : 'disconnected');
-        
+
         if (isConnected && files.length === 0) {
           loadFiles();
         }
@@ -75,7 +75,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       if (window.electronAPI?.fileops?.listRecent) {
         const recentFiles = await window.electronAPI.fileops.listRecent(30, 50);
         setFiles(recentFiles);
@@ -117,7 +117,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
     } catch (error) {
       console.error('Failed to load files:', error);
       setError(`Failed to load files: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      
+
       // Show fallback data on error
       setFiles([
         {
@@ -143,17 +143,17 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
   const handleFileAction = async (file: FileInfo, action: 'open' | 'delete' | 'info' | 'preview' | 'tag' | 'copy') => {
     try {
       setOperationInProgress(action);
-      
+
       switch (action) {
         case 'open':
           if (window.electronAPI?.fileops?.readFile) {
             try {
               const fileContent = await window.electronAPI.fileops.readFile(file.fileId);
               console.log(`File opened via FileOps: ${file.title}`, fileContent);
-              
+
               // Show success message
               showNotification(`File opened: ${file.title}`, 'success');
-              
+
               // Open preview if it's a readable file
               if (fileContent.content || fileContent.text) {
                 setSelectedFile(file);
@@ -167,33 +167,48 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
             showNotification(`Opening file: ${file.title}`, 'info');
           }
           break;
-          
+
         case 'preview':
           setSelectedFile(file);
           setShowPreview(true);
           break;
-          
+
         case 'delete':
           if (confirm(`Are you sure you want to delete "${file.title}"?`)) {
-            if (window.electronAPI?.fileops?.deleteFile) {
-              try {
-                await window.electronAPI.fileops.deleteFile(file.fileId);
+            // Priority: Use the generic Kit API first
+            try {
+              const res = await fetch(`/api/files/${file.fileId}`, {
+                method: 'DELETE'
+              });
+
+              if (res.ok) {
                 setFiles(prev => prev.filter(f => f.fileId !== file.fileId));
-                console.log(`File deleted via FileOps: ${file.title}`);
+                console.log(`File deleted: ${file.title}`);
                 showNotification(`File deleted: ${file.title}`, 'success');
-              } catch (fileOpsError) {
-                console.warn('FileOps delete failed:', fileOpsError);
-                showNotification(`Failed to delete file: ${fileOpsError}`, 'error');
+              } else {
+                throw new Error('API delete failed');
               }
-            } else {
-              // Fallback local delete
-              setFiles(prev => prev.filter(f => f.fileId !== file.fileId));
-              console.log(`File deleted locally: ${file.title}`);
-              showNotification(`File deleted: ${file.title}`, 'success');
+            } catch (error) {
+              console.warn('API delete failed, trying fallback/FileOps...', error);
+
+              // Fallback to existing FileOps or local
+              if (window.electronAPI?.fileops?.deleteFile) {
+                try {
+                  await window.electronAPI.fileops.deleteFile(file.fileId);
+                  setFiles(prev => prev.filter(f => f.fileId !== file.fileId));
+                  showNotification(`File deleted: ${file.title}`, 'success');
+                } catch (e) {
+                  showNotification(`Failed to delete file`, 'error');
+                }
+              } else {
+                // Simulated Local Delete
+                setFiles(prev => prev.filter(f => f.fileId !== file.fileId));
+                showNotification(`File deleted: ${file.title}`, 'success');
+              }
             }
           }
           break;
-          
+
         case 'tag':
           // Create a simple input dialog instead of using prompt()
           const tagInput = document.createElement('div');
@@ -210,7 +225,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
             font-family: 'MS Sans Serif', sans-serif;
             min-width: 300px;
           `;
-          
+
           tagInput.innerHTML = `
             <div style="margin-bottom: 15px; font-weight: bold;">Add Tag to "${file.title}"</div>
             <input type="text" id="tag-input" placeholder="Enter tag name..." style="width: 100%; padding: 5px; margin-bottom: 15px;">
@@ -219,15 +234,15 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
               <button id="tag-ok" style="padding: 5px 15px;">OK</button>
             </div>
           `;
-          
+
           document.body.appendChild(tagInput);
-          
+
           const tagInputField = tagInput.querySelector('#tag-input') as HTMLInputElement;
           const tagOkButton = tagInput.querySelector('#tag-ok') as HTMLButtonElement;
           const tagCancelButton = tagInput.querySelector('#tag-cancel') as HTMLButtonElement;
-          
+
           tagInputField.focus();
-          
+
           const handleTagInput = () => {
             const newTag = tagInputField.value.trim();
             if (newTag) {
@@ -235,11 +250,11 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
             }
             document.body.removeChild(tagInput);
           };
-          
+
           const handleTagCancel = () => {
             document.body.removeChild(tagInput);
           };
-          
+
           tagOkButton.addEventListener('click', handleTagInput);
           tagCancelButton.addEventListener('click', handleTagCancel);
           tagInputField.addEventListener('keypress', (e) => {
@@ -247,16 +262,16 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
               handleTagInput();
             }
           });
-          
+
           break;
-          
+
         case 'copy':
           if (window.electronAPI?.fileops?.findSimilar) {
             try {
               const similarFiles = await window.electronAPI.fileops.findSimilar(file.fileId, 5);
               console.log(`Similar files found:`, similarFiles);
               showNotification(`Found ${similarFiles.length} similar files to "${file.title}"`, 'info');
-              
+
               // Show similar files in a dialog
               const similarFilesList = similarFiles.map((f: any) => f.title).join('\n');
               alert(`Similar files to "${file.title}":\n\n${similarFilesList}`);
@@ -268,7 +283,7 @@ const FileManager: React.FC<FileManagerProps> = ({ onClose }) => {
             showNotification(`Similar files feature not available`, 'warning');
           }
           break;
-          
+
         case 'info':
           // Enhanced file properties with FileOps data
           let info = `
@@ -281,7 +296,7 @@ File Properties:
 - Path: ${file.originalPath}
 - Relevance Score: ${(file.finalScore * 100).toFixed(0)}%
           `;
-          
+
           // Try to get additional FileOps info
           if (window.electronAPI?.fileops?.getFileInfo) {
             try {
@@ -292,7 +307,7 @@ File Properties:
               console.warn('FileOps info failed:', fileOpsError);
             }
           }
-          
+
           alert(info);
           break;
       }
@@ -313,10 +328,10 @@ File Properties:
         });
         console.log(`Tag added via FileOps: ${newTag} to ${file.title}`);
         showNotification(`Tag "${newTag}" added to file`, 'success');
-        
+
         // Update the file in the list
-        setFiles(prev => prev.map((f: FileInfo) => 
-          f.fileId === file.fileId 
+        setFiles(prev => prev.map((f: FileInfo) =>
+          f.fileId === file.fileId
             ? { ...f, tags: [...f.tags, newTag] }
             : f
         ));
@@ -347,9 +362,9 @@ File Properties:
       max-width: 300px;
       word-wrap: break-word;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
       if (notification.parentNode) {
@@ -419,9 +434,9 @@ File Properties:
   return (
     <div className="win98-file-manager">
       {/* Loading Overlay */}
-      <LoadingOverlay 
-        show={loading} 
-        message="Loading files from FileOps..." 
+      <LoadingOverlay
+        show={loading}
+        message="Loading files from FileOps..."
       />
 
       {/* Error Dialog */}
@@ -436,27 +451,27 @@ File Properties:
       )}
 
       {showPreview && selectedFile ? (
-        <FilePreview 
-          file={selectedFile} 
+        <FilePreview
+          file={selectedFile}
           onClose={() => {
             setShowPreview(false);
             setSelectedFile(null);
-          }} 
+          }}
         />
       ) : (
         <>
           {/* Toolbar */}
           <div className="win98-toolbar">
-            <button 
-              className="win98-toolbar-button" 
+            <button
+              className="win98-toolbar-button"
               onClick={loadFiles}
               disabled={loading}
               title="Refresh files"
             >
               <Win98Icon name="refresh" size={16} />
             </button>
-            <button 
-              className="win98-toolbar-button" 
+            <button
+              className="win98-toolbar-button"
               onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
               title={`Switch to ${viewMode === 'list' ? 'grid' : 'list'} view`}
             >
@@ -465,9 +480,9 @@ File Properties:
             <div className="win98-toolbar-separator"></div>
             <span className="win98-toolbar-text">FileOps File Manager</span>
             <div className="win98-toolbar-separator"></div>
-            <div 
+            <div
               className="win98-connection-indicator"
-              style={{ 
+              style={{
                 backgroundColor: getConnectionStatusColor(),
                 width: '12px',
                 height: '12px',
@@ -510,7 +525,7 @@ File Properties:
                         <div className="win98-file-list-item-date">{formatDate(file.modifiedAt)}</div>
                         <div className="win98-file-list-item-type">{file.category}</div>
                         <div className="win98-file-list-item-actions">
-                          <button 
+                          <button
                             className="win98-button win98-button-small"
                             onClick={() => handleFileAction(file, 'preview')}
                             title="Preview File"
@@ -518,7 +533,7 @@ File Properties:
                           >
                             <Win98Icon name="view" size={12} />
                           </button>
-                          <button 
+                          <button
                             className="win98-button win98-button-small"
                             onClick={() => handleFileAction(file, 'tag')}
                             title="Add Tag"
@@ -526,7 +541,7 @@ File Properties:
                           >
                             <Win98Icon name="tag" size={12} />
                           </button>
-                          <button 
+                          <button
                             className="win98-button win98-button-small"
                             onClick={() => handleFileAction(file, 'copy')}
                             title="Find Similar"
@@ -534,7 +549,7 @@ File Properties:
                           >
                             <Win98Icon name="search" size={12} />
                           </button>
-                          <button 
+                          <button
                             className="win98-button win98-button-small"
                             onClick={() => handleFileAction(file, 'info')}
                             title="File Properties"
@@ -542,7 +557,7 @@ File Properties:
                           >
                             <Win98Icon name="info" size={12} />
                           </button>
-                          <button 
+                          <button
                             className="win98-button win98-button-small"
                             onClick={() => handleFileAction(file, 'delete')}
                             title="Delete File"

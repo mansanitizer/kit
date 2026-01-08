@@ -13,7 +13,7 @@ export interface WindowState {
   size: { width: number; height: number };
   zIndex: number;
   isFocused: boolean;
-  type: 'tool' | 'folder' | 'system' | 'history';
+  type: 'tool' | 'folder' | 'system' | 'history' | 'my-computer' | 'recycle-bin' | 'about-me';
   data?: any; // To pass tool data or folder paths
 }
 
@@ -22,7 +22,7 @@ export interface DesktopIcon {
   title: string;
   icon: string;
   position: { x: number; y: number };
-  type: 'tool' | 'folder' | 'system' | 'link';
+  type: 'tool' | 'folder' | 'system' | 'link' | 'about-me';
   action?: () => void;
   target?: string; // Slug or path
 }
@@ -57,4 +57,19 @@ export interface AppState {
   taskbarItems: TaskbarItem[];
   startMenuOpen: boolean;
   activeTool: Tool | null;
+}
+
+export interface FileInfo {
+  fileId: string;
+  title: string;
+  description: string;
+  originalPath: string;
+  tags: string[];
+  category: string;
+  relevanceScore: number;
+  finalScore: number;
+  matchedFields: string[];
+  reasoning: string;
+  modifiedAt: string;
+  sizeKB: number;
 }

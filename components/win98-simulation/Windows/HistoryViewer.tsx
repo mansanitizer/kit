@@ -34,24 +34,28 @@ const Win98Input = ({ value, onChange, placeholder, className }: any) => (
 interface HistoryViewerProps {
     onClose: () => void;
     isActive: boolean;
+    sessionId?: string;
 }
 
-export function HistoryViewer({ onClose, isActive }: HistoryViewerProps) {
+export function HistoryViewer({ onClose, isActive, sessionId }: HistoryViewerProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [interactions, setInteractions] = useState<Interaction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [viewRaw, setViewRaw] = useState(false);
 
     // Initial Fetch
     useEffect(() => {
-        fetchInteractions();
-    }, []);
+        if (isActive) {
+            fetchInteractions();
+        }
+    }, [isActive, sessionId]);
 
     // Debounced Search (or manual search button in Win98 style?) 
     // Win98 usually has a "Search" button. Let's do automatic for convenience but maybe add a refresh.
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchInteractions();
+            if (isActive) fetchInteractions();
         }, 500);
         return () => clearTimeout(timer);
     }, [searchTerm]);
@@ -63,7 +67,11 @@ export function HistoryViewer({ onClose, isActive }: HistoryViewerProps) {
             if (searchTerm) params.set("search", searchTerm);
             params.set("limit", "50");
 
-            const res = await fetch(`/api/interactions?${params.toString()}`);
+            const res = await fetch(`/api/interactions?${params.toString()}`, {
+                headers: {
+                    'x-session-id': sessionId || ''
+                }
+            });
             const data = await res.json();
 
             if (data.interactions) {
@@ -167,14 +175,58 @@ export function HistoryViewer({ onClose, isActive }: HistoryViewerProps) {
 
                                 {/* OUTPUT SECTION */}
                                 <div className="space-y-2">
-                                    <div className="bg-[#000080] text-white px-1 text-xs font-bold inline-block">
-                                        Output Data
+                                    <div className="flex justify-between items-end">
+                                        <div className="bg-[#000080] text-white px-1 text-xs font-bold inline-block">
+                                            Output Data
+                                        </div>
+                                        <button
+                                            onClick={() => setViewRaw(!viewRaw)}
+                                            className={cn(
+                                                "text-[10px] px-2 py-0.5 border border-white/20 rounded hover:bg-white/10 text-white/70 transition-colors",
+                                                viewRaw && "bg-white/20 text-white border-white/50"
+                                            )}
+                                        >
+                                            {viewRaw ? "View Rendered" : "View RAW"}
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                if (selectedInteraction && confirm('Delete this interaction?')) {
+                                                    try {
+                                                        const res = await fetch(`/api/interactions/${selectedInteraction.id}`, {
+                                                            method: 'DELETE',
+                                                            headers: {
+                                                                'x-session-id': sessionId || ''
+                                                            }
+                                                        });
+                                                        if (res.ok) {
+                                                            setInteractions(prev => prev.filter(i => i.id !== selectedInteraction.id));
+                                                            setSelectedId(null);
+                                                            alert('Interaction deleted');
+                                                        } else {
+                                                            alert('Failed to delete interaction');
+                                                        }
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                        alert('Error deleting interaction');
+                                                    }
+                                                }
+                                            }}
+                                            className="text-[10px] px-2 py-0.5 border border-red-500/20 rounded hover:bg-red-500/20 text-red-400/70 transition-colors ml-2"
+                                        >
+                                            Delete
+                                        </button>
                                     </div>
                                     <div className="border border-white/10 p-2 rounded bg-black/20">
-                                        <DynamicRenderer
-                                            schema={{}}
-                                            data={selectedInteraction.output_data}
-                                        />
+                                        {viewRaw ? (
+                                            <pre className="text-xs text-green-400 font-mono whitespace-pre-wrap overflow-auto max-h-[500px] select-text">
+                                                {JSON.stringify(selectedInteraction.output_data, null, 2)}
+                                            </pre>
+                                        ) : (
+                                            <DynamicRenderer
+                                                schema={{}}
+                                                data={selectedInteraction.output_data}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -9,7 +9,11 @@ import Win98WindowFrame from './Common/Win98WindowFrame';
 import { Win98ToolWindow } from './Windows/Win98ToolWindow';
 import { ToolsFolder } from './Windows/ToolsFolder';
 import { HistoryViewer } from './Windows/HistoryViewer';
+import { RecycleBinWindow } from './Windows/RecycleBinWindow';
+import { MyComputerWindow } from './Windows/MyComputerWindow';
+import { AboutMeWindow } from './Windows/AboutMeWindow';
 import { getAllTools } from '@/lib/tool-registry';
+
 import './styles/win98.css';
 
 const Win98App: React.FC = () => {
@@ -22,21 +26,50 @@ const Win98App: React.FC = () => {
     const [desktopIcons, setDesktopIcons] = useState<DesktopIcon[]>([]);
     const [selectedIconIds, setSelectedIconIds] = useState<string[]>([]);
 
+    // Session State
+    const [sessionId, setSessionId] = useState<string | null>(null);
+
+    // Load Session
+    useEffect(() => {
+        const loadSession = () => {
+            let id = localStorage.getItem('kit_session_id');
+            if (!id) {
+                id = crypto.randomUUID();
+                localStorage.setItem('kit_session_id', id);
+            }
+            setSessionId(id);
+        };
+        loadSession();
+    }, []);
+
     // Dragging state
     const dragRef = useRef<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
-    // Load tools on mount
+    // Load tools on mount and when session changes
     useEffect(() => {
+        if (!sessionId) return; // Wait for session
+
         const fetchTools = async () => {
             try {
-                const _tools = await getAllTools();
+                const _tools = await getAllTools(sessionId);
                 setTools(_tools);
             } catch (e) {
                 console.error("Failed to fetch tools", e);
             }
         };
         fetchTools();
-    }, []);
+    }, [sessionId]);
+
+
+    const openMyComputer = () => {
+        openWindow({
+            id: 'my-computer-window',
+            title: 'My Computer',
+            type: 'my-computer',
+            icon: 'computer',
+            size: { width: 700, height: 500 }
+        });
+    };
 
     // Initialize Desktop Icons
     useEffect(() => {
@@ -47,7 +80,7 @@ const Win98App: React.FC = () => {
                 icon: 'computer',
                 position: { x: 20, y: 20 },
                 type: 'system',
-                action: () => alert('My Computer not implemented yet'),
+                action: () => openMyComputer(),
             },
             {
                 id: 'tools-folder',
@@ -71,14 +104,28 @@ const Win98App: React.FC = () => {
                 icon: 'recycle-bin',
                 position: { x: 20, y: 320 },
                 type: 'system',
-                action: () => alert('Recycle Bin is empty'),
+                action: () => openWindow({
+                    id: 'recycle-bin-window',
+                    title: 'Recycle Bin',
+                    type: 'recycle-bin',
+                    icon: 'recycle-bin',
+                    size: { width: 600, height: 400 }
+                }),
+            },
+            {
+                id: 'about-me',
+                title: 'About Me',
+                icon: 'info', // Map 'info' to Info icon in Win98Icon
+                position: { x: 20, y: 420 },
+                type: 'about-me',
+                action: () => openAboutMe(),
             }
         ];
         setDesktopIcons(icons);
     }, [tools]);
 
     // Window Management
-    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' }) => {
+    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' | 'history' | 'recycle-bin' | 'my-computer' | 'about-me' }) => {
         setOpenWindows(prev => {
             const existing = prev.find(w => w.id === windowDetails.id);
             if (existing) {
@@ -128,6 +175,16 @@ const Win98App: React.FC = () => {
             type: 'history',
             icon: 'history', // Make sure to handle this icon in Win98WindowFrame if needed or fallback
             size: { width: 800, height: 600 }
+        });
+    };
+
+    const openAboutMe = () => {
+        openWindow({
+            id: 'about-me-window',
+            title: 'About Me',
+            type: 'about-me',
+            icon: 'info',
+            size: { width: 600, height: 500 }
         });
     };
 
@@ -235,6 +292,7 @@ const Win98App: React.FC = () => {
                     isActive={activeWindowId === win.id}
                     onFocus={() => bringToFront(win.id)}
                     windowId={win.id}
+                    sessionId={sessionId || undefined}
                 />
             );
         } else if (win.type === 'folder' && win.id === 'tools-folder-window') {
@@ -244,6 +302,29 @@ const Win98App: React.FC = () => {
                     onToolOpen={openTool}
                     onClose={() => closeWindow(win.id)}
                     onFocus={() => bringToFront(win.id)}
+                    isActive={activeWindowId === win.id}
+                    sessionId={sessionId || undefined}
+                />
+            );
+        } else if (win.type === 'my-computer') {
+            return (
+                <MyComputerWindow
+                    onClose={() => closeWindow(win.id)}
+                    isActive={activeWindowId === win.id}
+                />
+            );
+        } else if (win.type === 'recycle-bin') {
+            return (
+                <RecycleBinWindow
+                    onClose={() => closeWindow(win.id)}
+                    isActive={activeWindowId === win.id}
+                    sessionId={sessionId || undefined}
+                />
+            );
+        } else if (win.type === 'about-me') {
+            return (
+                <AboutMeWindow
+                    onClose={() => closeWindow(win.id)}
                     isActive={activeWindowId === win.id}
                 />
             );
@@ -289,6 +370,13 @@ const Win98App: React.FC = () => {
                                 <HistoryViewer
                                     onClose={() => closeWindow(win.id)}
                                     isActive={activeWindowId === win.id}
+                                    sessionId={sessionId || undefined}
+                                />
+                            ) : win.type === 'recycle-bin' ? (
+                                <RecycleBinWindow
+                                    onClose={() => closeWindow(win.id)}
+                                    isActive={activeWindowId === win.id}
+                                    sessionId={sessionId || undefined}
                                 />
                             ) : renderWindowContent(win)
                         )}
