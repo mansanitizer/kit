@@ -73,3 +73,5 @@ export interface FileInfo {
   modifiedAt: string;
   sizeKB: number;
 }
+
+export type SearchResult = FileInfo;
