@@ -13,7 +13,7 @@ export interface WindowState {
   size: { width: number; height: number };
   zIndex: number;
   isFocused: boolean;
-  type: 'tool' | 'folder' | 'system' | 'history' | 'my-computer' | 'recycle-bin' | 'about-me' | 'brain';
+  type: 'tool' | 'folder' | 'system' | 'history' | 'my-computer' | 'recycle-bin' | 'about-me' | 'brain' | 'settings' | 'welcome';
   data?: any; // To pass tool data or folder paths
 }
 
@@ -22,7 +22,7 @@ export interface DesktopIcon {
   title: string;
   icon: string;
   position: { x: number; y: number };
-  type: 'tool' | 'folder' | 'system' | 'link' | 'about-me' | 'brain';
+  type: 'tool' | 'folder' | 'system' | 'link' | 'about-me' | 'brain' | 'welcome';
   action?: () => void;
   target?: string; // Slug or path
 }

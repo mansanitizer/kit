@@ -10,9 +10,10 @@ interface DesktopProps {
   onIconClick: (iconId: string) => void;
   onIconSelect: (iconId: string) => void;
   selectedIconIds: string[];
+  wallpaper?: string | null;
 }
 
-const Desktop: React.FC<DesktopProps> = ({ icons, onIconClick, onIconSelect, selectedIconIds }) => {
+const Desktop: React.FC<DesktopProps> = ({ icons, onIconClick, onIconSelect, selectedIconIds, wallpaper }) => {
   const handleIconClick = (e: React.MouseEvent, iconId: string) => {
     e.stopPropagation();
     onIconSelect(iconId); // Single click selects
@@ -28,7 +29,16 @@ const Desktop: React.FC<DesktopProps> = ({ icons, onIconClick, onIconSelect, sel
   };
 
   return (
-    <div className="win98-desktop" onClick={handleDesktopClick}>
+    <div
+      className="win98-desktop"
+      onClick={handleDesktopClick}
+      style={{
+        backgroundImage: wallpaper ? `url(${wallpaper})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       {icons.map((icon) => (
         <div
           key={icon.id}

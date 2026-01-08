@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { WallpaperSettings } from './WallpaperSettings';
 import './Settings.css';
 
 interface SettingsProps {
   onClose: () => void;
+  onWallpaperUpdated?: () => void;
 }
 
 interface AppSettings {
@@ -18,7 +20,7 @@ interface AppSettings {
   showFileExtensions: boolean;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose }) => {
+const Settings: React.FC<SettingsProps> = ({ onClose, onWallpaperUpdated }) => {
   const [settings, setSettings] = useState<AppSettings>({
     fileOpsServer: 'http://localhost:3001',
     autoConnect: true,
@@ -32,7 +34,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     showFileExtensions: true,
   });
 
-  const [activeTab, setActiveTab] = useState<'general' | 'fileops' | 'appearance' | 'advanced'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'fileops' | 'appearance' | 'advanced' | 'wallpaper'>('general');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -107,28 +109,34 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       {/* Settings Tabs */}
       <div className="win98-settings-tabs">
         <button
-          className={`win98-settings-tab ${activeTab === 'general' ? 'active' : ''}`}
+          className={`win98 - settings - tab ${activeTab === 'general' ? 'active' : ''} `}
           onClick={() => setActiveTab('general')}
         >
           General
         </button>
         <button
-          className={`win98-settings-tab ${activeTab === 'fileops' ? 'active' : ''}`}
+          className={`win98 - settings - tab ${activeTab === 'fileops' ? 'active' : ''} `}
           onClick={() => setActiveTab('fileops')}
         >
           FileOps
         </button>
         <button
-          className={`win98-settings-tab ${activeTab === 'appearance' ? 'active' : ''}`}
+          className={`win98 - settings - tab ${activeTab === 'appearance' ? 'active' : ''} `}
           onClick={() => setActiveTab('appearance')}
         >
           Appearance
         </button>
         <button
-          className={`win98-settings-tab ${activeTab === 'advanced' ? 'active' : ''}`}
+          className={`win98 - settings - tab ${activeTab === 'advanced' ? 'active' : ''} `}
           onClick={() => setActiveTab('advanced')}
         >
           Advanced
+        </button>
+        <button
+          className={`win98 - settings - tab ${activeTab === 'wallpaper' ? 'active' : ''} `}
+          onClick={() => setActiveTab('wallpaper')}
+        >
+          Wallpaper
         </button>
       </div>
 
@@ -137,7 +145,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {activeTab === 'general' && (
           <div className="win98-settings-section">
             <h3>General Settings</h3>
-            
+
             <div className="win98-setting-group">
               <label className="win98-setting-label">Language:</label>
               <select
@@ -179,7 +187,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {activeTab === 'fileops' && (
           <div className="win98-settings-section">
             <h3>FileOps Configuration</h3>
-            
+
             <div className="win98-setting-group">
               <label className="win98-setting-label">FileOps Server URL:</label>
               <div className="win98-setting-input-group">
@@ -236,7 +244,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {activeTab === 'appearance' && (
           <div className="win98-settings-section">
             <h3>Appearance Settings</h3>
-            
+
             <div className="win98-setting-group">
               <label className="win98-setting-label">Theme:</label>
               <select
@@ -276,7 +284,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {activeTab === 'advanced' && (
           <div className="win98-settings-section">
             <h3>Advanced Settings</h3>
-            
+
             <div className="win98-setting-group">
               <label className="win98-setting-label">Debug Mode:</label>
               <label className="win98-checkbox">
@@ -300,6 +308,13 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                 Open Developer Tools
               </button>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'wallpaper' && (
+          <div className="win98-settings-section">
+            <h3>Desktop Wallpaper</h3>
+            <WallpaperSettings onWallpaperUpdated={onWallpaperUpdated} />
           </div>
         )}
       </div>

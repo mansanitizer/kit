@@ -1,0 +1,145 @@
+/* Spotlight Overlay */
+.win98-spotlight-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    /* Top most */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 15vh;
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Container */
+.win98-spotlight-container {
+    width: 600px;
+    max-width: 90vw;
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Search Bar Area */
+.win98-spotlight-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #808080;
+}
+
+.win98-spotlight-icon {
+    margin-right: 12px;
+    opacity: 0.6;
+}
+
+.win98-spotlight-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
+    font-size: 16px;
+    /* Larger than typical Win98 */
+    color: #000;
+    outline: none;
+}
+
+.win98-spotlight-hint {
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
+    font-size: 10px;
+    color: #808080;
+    border: 1px solid #808080;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+/* Results List */
+.win98-spotlight-results {
+    max-height: 400px;
+    overflow-y: auto;
+    background: #fff;
+    border-top: 2px inset #c0c0c0;
+    /* Visual separation */
+}
+
+.win98-spotlight-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    color: #000000;
+    /* Explicitly force black text for unselected items */
+}
+
+.win98-spotlight-item:last-child {
+    border-bottom: none;
+}
+
+.win98-spotlight-item.selected {
+    background-color: #000080;
+    color: #fff;
+}
+
+/* Inner item styles needing specific selectors for selected state */
+.win98-spotlight-item-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.win98-spotlight-item-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.win98-spotlight-item-title {
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.win98-spotlight-item-desc {
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
+    font-size: 11px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.win98-spotlight-item.selected .win98-spotlight-item-desc {
+    color: #ccc;
+}
+
+.win98-spotlight-item-enter {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-left: 8px;
+}
+
+.win98-spotlight-empty {
+    padding: 20px;
+    text-align: center;
+    color: #808080;
+    background: #fff;
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", "Tahoma", sans-serif;
+    border-top: 2px inset #c0c0c0;
+}

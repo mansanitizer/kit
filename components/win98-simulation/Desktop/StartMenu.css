@@ -96,7 +96,7 @@
   z-index: 1000;
 }
 
-.win98-menu-section:hover .win98-submenu {
+.win98-menu-item:hover>.win98-submenu {
   display: block;
 }
 

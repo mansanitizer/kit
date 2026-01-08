@@ -57,7 +57,6 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onMenuItemClick }) => {
                 <Win98Icon name="folder" size={24} />
               </span>
               <span className="font-bold">Documents</span>
-              <span className="win98-menu-arrow">▶</span>
             </div>
 
             {/* Settings */}
@@ -66,7 +65,6 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onMenuItemClick }) => {
                 <Win98Icon name="settings" size={24} />
               </span>
               <span className="font-bold">Settings</span>
-              <span className="win98-menu-arrow">▶</span>
             </div>
 
             {/* Find */}
@@ -75,7 +73,6 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onMenuItemClick }) => {
                 <Win98Icon name="search" size={24} />
               </span>
               <span className="font-bold">Find</span>
-              <span className="win98-menu-arrow">▶</span>
             </div>
 
             {/* Help */}

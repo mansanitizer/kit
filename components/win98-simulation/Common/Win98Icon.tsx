@@ -35,6 +35,29 @@ export const Win98Icon: React.FC<Win98IconProps> = ({
 }) => {
   const normalizedName = name.toLowerCase();
 
+  // 0. Check for custom image icons
+  const customIcons: Record<string, string> = {
+    'tools': '/icons/toolbox.png',
+    'toolbox': '/icons/toolbox.png',
+  };
+
+  const customSrc = customIcons[normalizedName];
+  if (customSrc) {
+    return (
+      <img
+        src={customSrc}
+        alt={name}
+        width={size}
+        height={size}
+        className={`win98-icon ${className}`}
+        style={{
+          imageRendering: 'pixelated', // Crucial for pixel art
+          objectFit: 'contain'
+        }}
+      />
+    );
+  }
+
   // 1. Check aliases first
   let iconName = iconMap[normalizedName];
 
