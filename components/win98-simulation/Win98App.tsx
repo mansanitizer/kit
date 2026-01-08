@@ -43,6 +43,30 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [wallpaper, setWallpaper] = useState<string | null>(null);
 
+    // Theme State
+    const [themeColor, setThemeColor] = useState<string>('classic');
+
+    useEffect(() => {
+        const saved = localStorage.getItem('kit_theme_color');
+        if (saved) setThemeColor(saved);
+    }, []);
+
+    const handleColorSelect = (color: string) => {
+        setThemeColor(color);
+        localStorage.setItem('kit_theme_color', color);
+    };
+
+    // Dynamic Theme Styles
+    const getThemeStyles = (): React.CSSProperties => {
+        if (themeColor === 'classic') return {};
+        return {
+            '--win98-desktop-start': themeColor,
+            '--win98-desktop-end': themeColor,
+            '--win98-accent-main': themeColor,
+            '--win98-accent-light': themeColor,
+        } as React.CSSProperties;
+    };
+
     // Load Session
     useEffect(() => {
         const loadSession = () => {
@@ -539,7 +563,10 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
     };
 
     return (
-        <div className="w-screen h-screen overflow-hidden relative select-none">
+        <div
+            className="w-screen h-screen overflow-hidden relative select-none"
+            style={getThemeStyles()}
+        >
             {/* Spotlight Overlay */}
             <SpotlightSearch
                 isOpen={isSpotlightOpen}
@@ -636,6 +663,7 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
                 onStartClick={() => setStartMenuOpen(!startMenuOpen)}
                 onItemClick={handleTaskbarItemClick}
                 startMenuOpen={startMenuOpen}
+                onColorSelect={handleColorSelect}
             />
         </div>
     );

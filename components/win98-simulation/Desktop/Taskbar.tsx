@@ -1,18 +1,19 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
 import { TaskbarItem } from '../shared/types';
 import './Taskbar.css';
+import { ColorPalette } from './ColorPalette';
 
 interface TaskbarProps {
   items: TaskbarItem[];
   onStartClick: () => void;
   onItemClick: (itemId: string) => void;
   startMenuOpen: boolean;
+  onColorSelect: (color: string) => void;
 }
 
-const Taskbar: React.FC<TaskbarProps> = ({ items, onStartClick, onItemClick, startMenuOpen }) => {
+const Taskbar: React.FC<TaskbarProps> = ({ items, onStartClick, onItemClick, startMenuOpen, onColorSelect }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showPalette, setShowPalette] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -60,6 +61,13 @@ const Taskbar: React.FC<TaskbarProps> = ({ items, onStartClick, onItemClick, sta
 
       {/* System Tray */}
       <div className="win98-system-tray">
+        <div
+          className="win98-tray-icon cursor-pointer hover:bg-gray-300 p-0.5"
+          title="Theme Color"
+          onClick={() => setShowPalette(!showPalette)}
+        >
+          🎨
+        </div>
         <div className="win98-tray-icon" title="Volume">
           🔊
         </div>
@@ -68,6 +76,16 @@ const Taskbar: React.FC<TaskbarProps> = ({ items, onStartClick, onItemClick, sta
           {formatTime(currentTime)}
         </div>
       </div>
+
+      {showPalette && (
+        <ColorPalette
+          onSelect={(c) => {
+            onColorSelect(c);
+            setShowPalette(false);
+          }}
+          onClose={() => setShowPalette(false)}
+        />
+      )}
     </div>
   );
 };
