@@ -13,6 +13,7 @@ import { RecycleBinWindow } from './Windows/RecycleBinWindow';
 import { MyComputerWindow } from './Windows/MyComputerWindow';
 import { AboutMeWindow } from './Windows/AboutMeWindow';
 import { BrainWindow } from './Windows/BrainWindow';
+import { ToolEditor } from './Windows/ToolEditor';
 import WelcomeWindow from './Windows/WelcomeWindow';
 import Settings from './Windows/Settings';
 import SpotlightSearch from './Desktop/SpotlightSearch';
@@ -58,10 +59,33 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
     // Dragging state
     const dragRef = useRef<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
+    const fetchTools = useCallback(async () => {
+        if (!sessionId) return;
+        try {
+            const _tools = await getAllTools(sessionId);
+            setTools(_tools);
+        } catch (e) {
+            console.error("Failed to fetch tools", e);
+        }
+    }, [sessionId]);
+
     // Load tools on mount and when session changes
     // Load wallpaper
     const fetchWallpaper = useCallback(async () => {
         if (!sessionId) return;
+
+        // Bootstrap User Tools (Ensure they have Tool Forge User)
+        try {
+            await fetch('/api/bootstrap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId })
+            });
+            // After (or assuming parallel is fine) - fetch tools will get it
+        } catch (e) {
+            console.error("Bootstrap failed", e);
+        }
+
         console.log("Fetching wallpaper for session:", sessionId);
         try {
             // Add timestamp to prevent caching
@@ -80,17 +104,7 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
 
     useEffect(() => {
         // Load tools
-        if (sessionId) {
-            const fetchTools = async () => {
-                try {
-                    const _tools = await getAllTools(sessionId);
-                    setTools(_tools);
-                } catch (e) {
-                    console.error("Failed to fetch tools", e);
-                }
-            };
-            fetchTools();
-        }
+        fetchTools();
 
         // Load wallpaper
         fetchWallpaper();
@@ -237,7 +251,7 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
     }, [tools]);
 
     // Window Management
-    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' | 'history' | 'recycle-bin' | 'my-computer' | 'about-me' | 'brain' | 'settings' | 'welcome' }) => {
+    const openWindow = (windowDetails: Partial<WindowState> & { id: string, title: string, type: 'tool' | 'folder' | 'system' | 'history' | 'recycle-bin' | 'my-computer' | 'about-me' | 'brain' | 'settings' | 'welcome' | 'tool-editor' }) => {
         setOpenWindows(prev => {
             const existing = prev.find(w => w.id === windowDetails.id);
             if (existing) {
@@ -277,6 +291,17 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
             type: 'folder',
             icon: 'folder',
             size: { width: 500, height: 400 }
+        });
+    };
+
+    const openToolEditor = (tool: Tool) => {
+        openWindow({
+            id: `tool-editor-${tool.slug}`,
+            title: `Edit ${tool.name}`,
+            type: 'tool-editor',
+            icon: 'hammer',
+            data: tool,
+            size: { width: 600, height: 500 }
         });
     };
 
@@ -443,6 +468,7 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
                 <ToolsFolder
                     tools={tools}
                     onToolOpen={openTool}
+                    onToolEdit={openToolEditor}
                     onClose={() => closeWindow(win.id)}
                     onFocus={() => bringToFront(win.id)}
                     isActive={activeWindowId === win.id}
@@ -492,6 +518,20 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
                 <WelcomeWindow
                     onClose={() => closeWindow(win.id)}
                     content={win.data?.content}
+                />
+            );
+        } else if (win.type === 'tool-editor' && win.data) {
+            return (
+                <ToolEditor
+                    tool={win.data}
+                    onClose={() => closeWindow(win.id)}
+                    isActive={activeWindowId === win.id}
+                    onFocus={() => bringToFront(win.id)}
+                    sessionId={sessionId || undefined}
+                    onSave={(updatedTool) => {
+                        fetchTools();
+                        // Optional: update local window data if needed, but fetchTools refreshes the desktop/folder list
+                    }}
                 />
             );
         }
@@ -566,7 +606,27 @@ const Win98App: React.FC<Win98AppProps> = ({ initialTutorialContent }) => {
                         setStartMenuOpen(false);
                         if (action === 'tools-folder') openToolsFolder();
                         if (action === 'settings') openSettings();
-                        // Add other actions
+                        if (action === 'documents') openMyComputer();
+                        if (action === 'find') setIsSpotlightOpen(true);
+                        if (action === 'help') openWelcome();
+
+                        if (action === 'logout') {
+                            const confirmLogout = window.confirm(`Log out of user ${sessionId}?\n\nWARNING: You will never be able to access this session again.\n\nClick OK to Log Off (Hard Refresh).`);
+                            if (confirmLogout) {
+                                localStorage.removeItem('kit_session_id');
+                                window.location.reload();
+                            }
+                        }
+
+                        if (action === 'shutdown') {
+                            // Attempt to close window, fallback to overlay if blocked
+                            window.close();
+                            // If script closure is blocked, maybe we show a goodbye screen? 
+                            // For now, let's keep it simple as requested "closes the window"
+                            // But often `window.close()` only works if script opened it.
+                            // Let's add a fallback "It is now safe to turn off your computer" overlay if it doesn't close.
+                            document.body.innerHTML = '<div style="background:black;color:#c0c0c0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:24px;">It is now safe to turn off your computer.</div>';
+                        }
                     }}
                 />
             )}

@@ -13,7 +13,7 @@ export interface WindowState {
   size: { width: number; height: number };
   zIndex: number;
   isFocused: boolean;
-  type: 'tool' | 'folder' | 'system' | 'history' | 'my-computer' | 'recycle-bin' | 'about-me' | 'brain' | 'settings' | 'welcome';
+  type: 'tool' | 'folder' | 'system' | 'history' | 'my-computer' | 'recycle-bin' | 'about-me' | 'brain' | 'settings' | 'welcome' | 'tool-editor';
   data?: any; // To pass tool data or folder paths
 }
 

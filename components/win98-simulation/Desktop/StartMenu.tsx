@@ -52,7 +52,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onMenuItemClick }) => {
             </div>
 
             {/* Documents */}
-            <div className="win98-menu-item">
+            <div className="win98-menu-item" onClick={() => handleMenuItemClick('documents')}>
               <span className="win98-menu-icon">
                 <Win98Icon name="folder" size={24} />
               </span>
@@ -81,14 +81,6 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onMenuItemClick }) => {
                 <Win98Icon name="help" size={24} />
               </span>
               <span className="font-bold">Help</span>
-            </div>
-
-            {/* Run */}
-            <div className="win98-menu-item" onClick={() => handleMenuItemClick('run')}>
-              <span className="win98-menu-icon">
-                <Win98Icon name="run" size={24} />
-              </span>
-              <span className="font-bold">Run...</span>
             </div>
           </div>
 

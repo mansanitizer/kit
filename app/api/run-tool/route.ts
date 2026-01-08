@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
             }
 
             // --- SPECIAL HANDLER: Tool Forge ---
-            if (toolSlug === 'tool-forge') {
+            if (toolSlug.startsWith('tool-forge')) {
                 // The outputData IS the tool definition.
                 // 1. Check if tool exists to handle updates gracefully (avoid duplicate slug error)
                 const { data: existingTool } = await supabase

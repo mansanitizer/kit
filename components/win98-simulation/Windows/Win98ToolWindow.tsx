@@ -183,7 +183,7 @@ export const Win98ToolWindow: React.FC<Win98ToolWindowProps> = ({
                                 userFiles.map(f => (
                                     <div
                                         key={f.id}
-                                        className="text-xs p-1 hover:bg-[#000080] hover:text-white cursor-pointer truncate flex items-center gap-2"
+                                        className="text-xs p-1 text-black hover:bg-[#000080] hover:text-white cursor-pointer truncate flex items-center gap-2"
                                         onClick={() => injectAttachment(f.filename)}
                                     >
                                         <Win98Icon name={f.type === 'image' ? 'image' : 'file-text'} size={12} />
@@ -247,7 +247,9 @@ export const Win98ToolWindow: React.FC<Win98ToolWindowProps> = ({
                                         <>
                                             <Win98Icon name="info" size={48} className="mb-4 text-blue-800" />
                                             <h3 className="text-xl font-bold mb-2">Ready!</h3>
-                                            <p className="mb-4">Tool created successfully.</p>
+                                            <p className="mb-4 text-center">
+                                                Created tool: <strong>{output.name}</strong>
+                                            </p>
                                             <button
                                                 className="win98-button px-4 py-1"
                                                 onClick={() => window.location.reload()}

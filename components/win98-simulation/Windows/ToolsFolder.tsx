@@ -12,11 +12,13 @@ interface ToolsFolderProps {
     onFocus: () => void;
     isActive: boolean;
     sessionId?: string;
+    onToolEdit?: (tool: Tool) => void;
 }
 
 export const ToolsFolder: React.FC<ToolsFolderProps> = ({
     tools,
     onToolOpen,
+    onToolEdit,
     onClose,
     onFocus,
     isActive,
@@ -76,6 +78,21 @@ export const ToolsFolder: React.FC<ToolsFolderProps> = ({
                         >
                             <span className="text-xs font-bold">×</span>
                         </div>
+                        {onToolEdit && tool.user_id && (
+                            <div
+                                className="absolute top-0 right-6 p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-500 hover:text-white rounded-full z-10"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToolEdit(tool);
+                                }}
+                                title="Edit Tool"
+                            >
+                                {/* Edit Icon (Pencil-ish) */}
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                </svg>
+                            </div>
+                        )}
                         <div className="mb-1">
                             {/* Use dynamic icon mapping if possible, or generic tool icon */}
                             <Win98Icon name={tool.icon || "settings"} size={32} />

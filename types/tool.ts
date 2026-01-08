@@ -11,4 +11,5 @@ export type Tool = {
     schema_version?: number
     created_at?: string
     model?: string
+    user_id?: string | null
 }
