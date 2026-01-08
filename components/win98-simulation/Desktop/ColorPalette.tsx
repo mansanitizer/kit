@@ -36,8 +36,9 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ onSelect, onClose })
                         key={c.name}
                         className="w-6 h-6 border border-gray-600 cursor-pointer hover:border-white hover:scale-110 transition-transform"
                         style={{
-                            backgroundColor: c.value === 'classic' ? '#008080' : c.value,
-                            background: c.value === 'classic' ? 'linear-gradient(135deg, #008080 50%, #000080 50%)' : undefined
+                            background: c.value === 'classic'
+                                ? 'linear-gradient(135deg, #008080 50%, #000080 50%)'
+                                : c.value
                         }}
                         title={c.name}
                         onClick={() => onSelect(c.value)}
