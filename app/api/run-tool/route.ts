@@ -130,9 +130,17 @@ export async function POST(req: NextRequest) {
             // --- SPECIAL HANDLER: Tool Forge ---
             if (toolSlug === 'tool-forge') {
                 // The outputData IS the tool definition.
-                // We simply need to save it to the 'tools' table.
+                // 1. Check if tool exists to handle updates gracefully (avoid duplicate slug error)
+                const { data: existingTool } = await supabase
+                    .from('tools')
+                    .select('id')
+                    .eq('slug', outputData.slug)
+                    .maybeSingle();
+
+                const toolId = existingTool?.id || crypto.randomUUID();
+
                 const newTool = {
-                    id: crypto.randomUUID(),
+                    id: toolId,
                     slug: outputData.slug,
                     name: outputData.name,
                     description: outputData.description || "",
@@ -141,24 +149,24 @@ export async function POST(req: NextRequest) {
                     input_schema: outputData.input_schema || {},
                     output_schema: outputData.output_schema || {},
                     schema_version: 1,
+                    // If updating, ideally we preserve created_at, but for now refreshing it is acceptable as "last saved"
+                    // or we could conditionally add it. Let's just set it to now to indicate revision.
                     created_at: new Date().toISOString(),
                     color: outputData.color || "from-gray-500 to-gray-700",
                     model: outputData.model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001",
-                    user_id: sessionId || null // Scoped to the user who ran the forge
+                    user_id: sessionId || null
                 }
 
-                const { error: insertError } = await supabase.from('tools').insert(newTool)
+                // Upsert ensures we update if exists (using the retrieved ID to avoid PK conflict) 
+                // or insert if new.
+                const { error: saveError } = await supabase.from('tools').upsert(newTool)
 
-                if (insertError) {
-                    console.error("ToolForge Auto-Save Error:", insertError)
-                    // We don't fail the request, but we might want to signal error in the output?
-                    // For now, let's assume if it fails, the user will see it when they try to find it.
-                    // But the prompt wants specific success/fail UI.
-
-                    // Let's flag the output so frontend knows
+                if (saveError) {
+                    console.error("ToolForge Auto-Save Error:", saveError)
                     outputData._tool_forge_status = "error"
-                    outputData._tool_forge_error = insertError.message
+                    outputData._tool_forge_error = saveError.message
                 } else {
+                    console.log(`[ToolForge] creating/updating tool: ${newTool.slug} (${newTool.id})`);
                     outputData._tool_forge_status = "success"
                 }
             }
