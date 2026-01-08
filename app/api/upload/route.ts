@@ -4,17 +4,8 @@ import { RAGService } from "@/lib/rag";
 import { createRequire } from "module";
 import path from "path";
 
-const require = createRequire(import.meta.url);
-const pdfModule = require("pdf-parse");
-const pdf = pdfModule.default || pdfModule; // Fallback
-
-// Log module structure again to be sure
-console.log(`[RAG] loaded pdf-parse keys: ${Object.keys(pdfModule)}`);
-console.log(`[RAG] PDFParse type: ${typeof pdfModule.PDFParse}`);
-
-
-// Gemini 2.0 Flash Lite Model for Vision
 const VISION_MODEL = "google/gemini-2.0-flash-lite-001";
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
     try {
@@ -38,16 +29,33 @@ export async function POST(req: NextRequest) {
         // 1. Extract/Generate Content
         if (fileType === "application/pdf") {
             try {
-                // Modified for pdf-parse v2 (extracted from debugging)
+                // Lazy load pdf-parse to avoid top-level crashes in serverless
+                const require = createRequire(import.meta.url);
+                let pdfModule;
+                try {
+                    pdfModule = require("pdf-parse");
+                } catch (e: any) {
+                    console.error("Failed to require pdf-parse:", e);
+                    throw new Error(`Server configuration error: pdf-parse module missing. ${e.message}`);
+                }
+
                 // Convert Buffer to Uint8Array first
                 const uint8Array = new Uint8Array(buffer);
 
-                // Instantiate PDFParse
-                const instance = new pdfModule.PDFParse(uint8Array);
-
-                // Extract text using instance method
-                const data = await instance.getText();
-                content = data.text || "";
+                // Instantiate PDFParse - v2.4.5 style
+                if (!pdfModule.PDFParse) {
+                    // Fallback check if it's the older v1 style just in case deployment differs
+                    if (typeof pdfModule === 'function') {
+                        const data = await pdfModule(buffer);
+                        content = data.text;
+                    } else {
+                        throw new Error("pdf-parse module structure unrecognized");
+                    }
+                } else {
+                    const instance = new pdfModule.PDFParse(uint8Array);
+                    const data = await instance.getText();
+                    content = data.text || "";
+                }
 
                 if (!content) {
                     console.warn("[Upload] PDF parsed but no text content found.");
@@ -56,8 +64,7 @@ export async function POST(req: NextRequest) {
                 console.log(`[Upload] Extracted ${content.length} chars from PDF.`);
             } catch (err: any) {
                 console.error("PDF Parse Error:", err);
-                const debugInfo = `pdf type: ${typeof pdf}, keys: ${Object.keys(pdfModule)}`;
-                return NextResponse.json({ error: `Failed to parse PDF: ${err.message}. Debug: ${debugInfo}` }, { status: 500 });
+                return NextResponse.json({ error: `Failed to parse PDF: ${err.message}` }, { status: 500 });
             }
         } else if (fileType.startsWith("image/")) {
             finalFileType = "image";
