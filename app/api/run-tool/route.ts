@@ -66,10 +66,19 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Construct Prompt
-        const messages = [
-            { role: "system", content: tool.system_prompt + contextBlock + "\n\nCRITICAL: Output strict JSON matching this schema:\n" + JSON.stringify(tool.output_schema) },
-            { role: "user", content: JSON.stringify(input) }
-        ]
+        let messages = [];
+        const isGeminiImage = model === "google/gemini-2.5-flash-image";
+
+        if (isGeminiImage) {
+            // For Gemini Image Gen, strict single-message prompting works best to avoid "multi-turn" confusion
+            const combinedPrompt = `${tool.system_prompt}\n\n${contextBlock}\n\nUSER REQUEST: ${JSON.stringify(input)}\n\nCRITICAL: Output strict JSON matching this schema:\n${JSON.stringify(tool.output_schema)}`;
+            messages = [{ role: "user", content: combinedPrompt }];
+        } else {
+            messages = [
+                { role: "system", content: tool.system_prompt + contextBlock + "\n\nCRITICAL: Output strict JSON matching this schema:\n" + JSON.stringify(tool.output_schema) },
+                { role: "user", content: JSON.stringify(input) }
+            ]
+        }
 
         // 3. Call OpenRouter
         console.log("Using Model:", model)
@@ -84,7 +93,7 @@ export async function POST(req: NextRequest) {
             body: JSON.stringify({
                 model: model,
                 messages: messages,
-                response_format: { type: "json_object" }
+                ...((model !== "google/gemini-2.5-flash-image" && model !== "google/gemini-3-pro-image-preview") ? { response_format: { type: "json_object" } } : {})
             })
         })
 
@@ -95,8 +104,55 @@ export async function POST(req: NextRequest) {
         }
 
         const completion = await response.json()
-        const outputContent = completion.choices[0].message.content
-        const outputData = JSON.parse(outputContent)
+        console.log(`[RunTool] Full OpenRouter Response:`, JSON.stringify(completion, null, 2));
+
+        const messageResponse = completion.choices[0].message;
+        const outputContent = messageResponse.content || "" // Handle null/empty content
+        console.log(`[RunTool] Raw Output (first 1000): ${outputContent.substring(0, 1000)}...`);
+
+        let outputData: any = {};
+
+        // Gemini Image Model Output Extraction (Non-standard 'images' field)
+        if (messageResponse.images && Array.isArray(messageResponse.images) && messageResponse.images.length > 0) {
+            const firstImage = messageResponse.images[0];
+            if (firstImage.type === 'image_url' && firstImage.image_url?.url) {
+                console.log("[RunTool] Found image in message.images field");
+                outputData.image_data = firstImage.image_url.url;
+            }
+        }
+
+        try {
+            // Strip markdown code blocks if present
+            const cleanContent = outputContent.replace(/```json\n?|```/g, "").trim();
+            if (cleanContent) {
+                const parsed = JSON.parse(cleanContent);
+                outputData = { ...outputData, ...parsed };
+            }
+        } catch (e) {
+            console.warn("[RunTool] JSON Parse Failed, treating as raw text:", e);
+            // If we already have an image, the text is just a message/caption
+            outputData.message = outputData.message || outputContent;
+            if (!outputData._layout) {
+                outputData._layout = "[[message], [image_data]]";
+            }
+        }
+
+        // 3.2 Robust Image Extraction (Fix for Gemini/LLMs preferring Markdown)
+        if (!outputData.image_data && (outputData.image_url || outputContent.includes('data:image'))) {
+            // 1. Check if image_url is actually a data URI
+            if (outputData.image_url && outputData.image_url.startsWith('data:')) {
+                outputData.image_data = outputData.image_url;
+            }
+            // 2. Scan raw content for Markdown images ![alt](data:...) or ![alt](url)
+            else {
+                const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^)]+)\)/;
+                const match = outputContent.match(imgRegex);
+                if (match && match[1]) {
+                    console.log("[RunTool] Extracted Base64 image from Markdown");
+                    outputData.image_data = match[1];
+                }
+            }
+        }
 
         // 3.5 Robust Layout Injection (Server-side)
         if (!outputData._layout) {

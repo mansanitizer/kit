@@ -17,14 +17,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields (slug, name, system_prompt)" }, { status: 400 })
         }
 
-        // Check if slug exists
+        // Check if slug exists to get ID if needed, or just upsert
         const { data: existing } = await supabase.from('tools').select('id').eq('slug', slug).single()
-        if (existing) {
-            return NextResponse.json({ error: `Tool with slug '${slug}' already exists.` }, { status: 409 })
-        }
 
         const newTool: Tool = {
-            id: crypto.randomUUID(),
+            id: existing?.id || crypto.randomUUID(),
             slug,
             name,
             description: description || "",
@@ -38,7 +35,7 @@ export async function POST(req: NextRequest) {
             model: model || process.env.GENERATION_MODEL || "google/gemini-2.0-flash-lite-001"
         }
 
-        const { error } = await supabase.from('tools').insert(newTool)
+        const { error } = await supabase.from('tools').upsert(newTool)
 
         if (error) {
             console.error("DB Insert Error:", error)
